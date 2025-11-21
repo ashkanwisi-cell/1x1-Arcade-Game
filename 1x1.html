@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>1x1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;overflow:hidden}
+    body{
+      background:#000;
+      color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,sans-serif;
+      display:flex;justify-content:center;align-items:center;
+      -webkit-user-select:none;user-select:none;touch-action:none;
+    }
+    #wrapper{
+      position:relative;width:100vw;max-width:1080px;
+      aspect-ratio:1080/1920;
+      border-radius:28px;border:1px solid rgba(255,255,255,.07);
+      box-shadow:0 24px 60px rgba(0,0,0,.9);
+      overflow:hidden;background:#000;
+    }
+    canvas{width:100%;height:100%;display:block;background:#000;touch-action:none}
+
+    .ui-layer{
+      position:absolute;inset:0;
+      display:flex;justify-content:center;align-items:center;
+      pointer-events:none;
+    }
+    .ui-panel{
+      pointer-events:auto;
+      background:rgba(10,10,18,.94);
+      border-radius:22px;
+      padding:20px 22px;
+      box-shadow:0 20px 45px rgba(0,0,0,.85);
+      min-width:260px;max-width:380px;
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(18px);
+    }
+
+    .ui-app-header{
+      display:flex;align-items:center;gap:12px;margin-bottom:16px;
+    }
+    .ui-app-icon{
+      width:40px;height:40px;border-radius:12px;
+      background:linear-gradient(135deg,#0A84FF,#34C759);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;font-size:18px;
+      box-shadow:0 8px 20px rgba(10,132,255,.6);
+    }
+    .ui-app-title-block{
+      display:flex;flex-direction:column;gap:2px;
+    }
+    .ui-app-title{
+      font-size:22px;font-weight:800;letter-spacing:.04em;
+    }
+    .ui-app-subtitle{
+      font-size:12px;opacity:.7;
+    }
+
+    .ui-title{
+      font-size:20px;font-weight:800;margin-bottom:6px;
+      text-align:center;letter-spacing:.08em;text-transform:uppercase;
+    }
+    .ui-title span{
+      display:inline-block;
+      background:linear-gradient(135deg,#0A84FF,#4f9dff);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .ui-subtitle{
+      font-size:13px;opacity:.7;text-align:left;
+      margin-bottom:14px;line-height:1.6;
+    }
+    .ui-buttons{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+    .btn{
+      border:none;border-radius:999px;
+      padding:9px 16px;font-size:14px;font-weight:600;
+      cursor:pointer;background:#0A84FF;color:#fefefe;
+      display:inline-flex;justify-content:center;align-items:center;gap:8px;
+      box-shadow:0 6px 16px rgba(10,132,255,.4);
+      width:100%;letter-spacing:.02em;-webkit-tap-highlight-color:transparent;
+      transition:
+        transform .12s ease-out,
+        box-shadow .12s ease-out,
+        background-color .12s ease-out,
+        opacity .12s ease-out;
+    }
+    .btn-icon{font-size:15px;opacity:.95;min-width:18px;display:inline-flex;justify-content:center;align-items:center}
+    .btn-label{flex:1;text-align:center}
+    .btn:active{
+      transform:scale(.97);
+      box-shadow:0 3px 10px rgba(10,132,255,.3);
+      opacity:.98;
+    }
+    .btn-secondary{
+      background:rgba(245,245,245,.08);color:#f5f5f7;
+      box-shadow:none;border:.5px solid rgba(255,255,255,.12);
+    }
+    .btn-ghost{
+      background:transparent;color:#f5f5f7;
+      box-shadow:none;border:.5px solid rgba(255,255,255,.18);
+    }
+    .row{display:flex;gap:8px}
+    .row>.btn{flex:1}
+    .ui-label{font-size:12px;opacity:.75;margin:6px 0 4px;text-align:left}
+    select,.ui-input{
+      width:100%;background:rgba(255,255,255,.03);
+      border-radius:999px;border:.5px solid rgba(255,255,255,.18);
+      padding:8px 14px;color:rgba(240,240,245,.95);font-size:14px;outline:none;
+      -webkit-appearance:none;appearance:none;
+    }
+    .ui-input::placeholder{color:rgba(255,255,255,.35)}
+    .ui-small{font-size:11px;opacity:.7;text-align:center;margin-top:6px;letter-spacing:.03em;text-transform:uppercase}
+    .hidden{display:none!important}
+
+    .section{
+      margin-top:10px;
+      background:rgba(15,15,24,.98);
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+    .section-title{
+      font-size:11px;opacity:.55;
+      text-transform:uppercase;letter-spacing:.12em;
+      margin:6px 2px 4px;
+    }
+    .section-inner{
+      display:flex;flex-direction:column;
+    }
+    .list-item-btn{
+      border:none;background:transparent;
+      color:#f5f5f7;
+      display:flex;align-items:center;gap:10px;
+      width:100%;padding:10px 12px;
+      font-size:14px;font-weight:500;
+      cursor:pointer;-webkit-tap-highlight-color:transparent;
+      transition:
+        transform .12s ease-out,
+        background-color .12s ease-out,
+        opacity .12s ease-out;
+    }
+    .list-item-btn + .list-item-btn{
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .list-item-btn:active{
+      transform:scale(.97);
+      opacity:.95;
+      background:rgba(255,255,255,.04);
+    }
+    .list-icon{
+      width:26px;height:26px;border-radius:8px;
+      background:rgba(255,255,255,.08);
+      display:flex;align-items:center;justify-content:center;
+      font-size:15px;
+    }
+    .list-label{
+      flex:1;text-align:left;
+    }
+    .list-meta{
+      font-size:11px;opacity:.6;
+    }
+    .list-chevron{
+      font-size:15px;opacity:.4;
+    }
+
+    #hud-bar{
+      position:absolute;top:6px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,.6);border-radius:999px;padding:3px 10px;
+      font-size:10px;display:flex;align-items:center;gap:8px;
+      pointer-events:none;border:.5px solid rgba(255,255,255,.1);backdrop-filter:blur(10px);
+    }
+    #hud-bar span{opacity:.8}
+
+    #ultimate-btn{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      pointer-events:auto;
+      border-radius:999px;
+      padding:12px 28px;
+      font-size:14px;
+      font-weight:700;
+      border:none;
+      background:linear-gradient(135deg,#00C853,#AEEA00);
+      color:#02130a;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      box-shadow:0 10px 24px rgba(0,200,83,.7);
+      -webkit-tap-highlight-color:transparent;
+    }
+    #ultimate-btn:active{transform:translate(-50%,-50%) scale(.96)}
+
+    #tutorial-hint{
+      position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,.7);border-radius:999px;padding:6px 16px;
+      font-size:11px;opacity:.9;pointer-events:none;
+      border:.5px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);text-align:center;
+    }
+
+    /* انیمیشن tap شبیه iOS */
+    @keyframes tap-bounce {
+      0%   { transform:scale(1); }
+      50%  { transform:scale(0.96); }
+      100% { transform:scale(1); }
+    }
+    .tapped {
+      animation: tap-bounce 0.14s ease-out;
+    }
+
+    @media(max-width:480px){
+      .ui-panel{max-width:360px;padding:18px}
+      .ui-app-title{font-size:20px}
+      .ui-subtitle{font-size:12px}
+      .btn{font-size:13px;padding:8px 14px}
+    }
+  </style>
+</head>
+<body>
+<div id="wrapper">
+  <canvas id="game" width="1080" height="1920"></canvas>
+
+  <div id="hud-bar" class="hidden">
+    <span id="hud-rank">Rank: Bronze</span>
+    <span>·</span>
+    <span id="hud-difficulty">Mode: Normal</span>
+    <span>·</span>
+    <span id="hud-event">Event: None</span>
+  </div>
+  <button id="ultimate-btn" class="hidden">READY</button>
+  <div id="tutorial-hint" class="hidden">
+    Drag up / down to dodge pillars. Tap the AI face when its ring turns green.
+  </div>
+
+  <!-- PLAYER NAME -->
+  <div id="ui-name" class="ui-layer">
+    <div class="ui-panel">
+      <div class="ui-app-header">
+        <div class="ui-app-icon">1</div>
+        <div class="ui-app-title-block">
+          <div class="ui-app-title">1x1</div>
+          <div class="ui-app-subtitle">Minimal vertical arcade by @ashkanwaisi</div>
+        </div>
+      </div>
+      <div class="ui-subtitle">
+        Personalize your runs with a name. It will appear on your score card and when you share your best attempts.
+      </div>
+      <input id="player-name-input" class="ui-input" type="text" maxlength="18" placeholder="Your name" />
+
+      <div class="ui-buttons" style="margin-top:14px;">
+        <button class="btn" id="btn-name-start">
+          <span class="btn-icon">✔︎</span><span class="btn-label">Continue to Home</span>
+        </button>
+      </div>
+
+      <div class="section" style="margin-top:10px;">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-name-skip">
+            <div class="list-icon">›</div>
+            <div class="list-label">
+              Skip for now
+              <div class="list-meta">Use default name and change later</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ui-small" style="margin-top:10px;">
+        You can change this later from the main menu.
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div id="ui-main-menu" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-app-header">
+        <!-- این آیکون الان شماره‌ی Level را نشان می‌دهد -->
+        <div class="ui-app-icon" id="app-level-badge">1</div>
+        <div class="ui-app-title-block">
+          <div class="ui-app-title">1x1</div>
+          <div class="ui-app-subtitle">
+            Portrait-only arcade · built for mobile
+          </div>
+        </div>
+      </div>
+
+      <button class="btn" id="btn-play" style="margin-bottom:10px;">
+        <span class="btn-icon">▶︎</span><span class="btn-label">Play</span>
+      </button>
+
+      <div class="section-title">Progress</div>
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-missions">
+            <div class="list-icon">✓</div>
+            <div class="list-label">
+              Missions
+              <div class="list-meta">Daily and session goals for extra XP</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-trophies">
+            <div class="list-icon">🏅</div>
+            <div class="list-label">
+              Trophies
+              <div class="list-meta">Milestones you’ve unlocked so far</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">Player</div>
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-skins">
+            <div class="list-icon">▦</div>
+            <div class="list-label">
+              Skins
+              <div class="list-meta">Visual styles for your block</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-change-name">
+            <div class="list-icon">👤</div>
+            <div class="list-label">
+              Player name
+              <div class="list-meta">
+                <span id="menu-player-name">Guest</span>
+              </div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">System</div>
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-settings">
+            <div class="list-icon">⚙︎</div>
+            <div class="list-label">
+              Settings
+              <div class="list-meta">Difficulty, graphics, vibration & music</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-tutorial">
+            <div class="list-icon">?</div>
+            <div class="list-label">
+              How to Play
+              <div class="list-meta">Controls and power-up overview</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-credits">
+            <div class="list-icon">ⓘ</div>
+            <div class="list-label">
+              Credits
+              <div class="list-meta">1x1 · ashkan wisi</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ui-small" style="margin-top:10px;text-align:left;">
+        Best: <span id="menu-best-score">0</span> ·
+        Level: <span id="menu-level">1</span> ·
+        Rank: <span id="menu-rank">Bronze</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div id="ui-pause" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Paused</span></div>
+      <div class="ui-subtitle">Game paused. Tap resume to continue.</div>
+      <div class="ui-buttons">
+        <button class="btn" id="btn-resume">
+          <span class="btn-icon">▶︎</span><span class="btn-label">Resume</span>
+        </button>
+        <button class="btn-secondary" id="btn-restart-from-pause">
+          <span class="btn-icon">↻</span><span class="btn-label">Restart</span>
+        </button>
+        <button class="btn-ghost" id="btn-home-from-pause">
+          <span class="btn-icon">⌂</span><span class="btn-label">Main Menu</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over -->
+  <div id="ui-gameover" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Game Over</span></div>
+      <div class="ui-subtitle" id="go-subtitle">
+        You reached your limit this round.
+      </div>
+      <div style="text-align:center; margin-bottom:12px;">
+        <div style="font-size:18px; margin-bottom:4px; letter-spacing:.03em;">
+          Score: <span id="go-score">0</span>
+        </div>
+        <div style="font-size:14px; opacity:.8;">
+          Best: <span id="go-best">0</span> · Rank: <span id="go-rank">Bronze</span>
+        </div>
+        <div style="font-size:13px; opacity:.75; margin-top:4px;">
+          Level: <span id="go-level">1</span> · XP: <span id="go-xp">0</span>
+        </div>
+      </div>
+
+      <div class="ui-buttons" style="margin-bottom:8px;">
+        <button class="btn" id="btn-retry">
+          <span class="btn-icon">↻</span><span class="btn-label">Play Again</span>
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-home">
+            <div class="list-icon">⌂</div>
+            <div class="list-label">
+              Main Menu
+              <div class="list-meta">Return to home screen</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-share-score">
+            <div class="list-icon">🔗</div>
+            <div class="list-label">
+              Share Score
+              <div class="list-meta">Post your 1x1 score</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ui-small">
+        Built for ashkan wisi · 1x1
+      </div>
+    </div>
+  </div>
+
+  <!-- Skins -->
+  <div id="ui-skins" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Skins</span></div>
+      <div class="ui-subtitle">
+        Unlock and select visual styles for your block.
+      </div>
+      <div id="skin-preview" style="display:flex;flex-direction:column;align-items:center;margin:10px 0 14px;">
+        <div id="skin-box" style="width:56px;height:56px;border-radius:14px;margin-bottom:8px;"></div>
+        <div id="skin-name" style="font-size:14px;opacity:.9;margin-bottom:4px;"></div>
+        <div id="skin-status" style="font-size:12px;opacity:.8;"></div>
+      </div>
+
+      <div class="ui-buttons" style="margin-bottom:8px;">
+        <button class="btn" id="btn-skin-apply">
+          <span class="btn-icon">✔︎</span><span class="btn-label">Use This Skin</span>
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-skin-prev">
+            <div class="list-icon">‹</div>
+            <div class="list-label">
+              Previous skin
+              <div class="list-meta">See the previous style</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-skin-next">
+            <div class="list-icon">›</div>
+            <div class="list-label">
+              Next skin
+              <div class="list-meta">Browse the next style</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-skin-back">
+            <div class="list-icon">⌂</div>
+            <div class="list-label">
+              Back
+              <div class="list-meta">Return to main menu</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div id="ui-settings" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Settings</span></div>
+      <div class="ui-subtitle">
+        Adjust difficulty, graphics, vibration and custom music.
+      </div>
+      <div class="ui-label">Difficulty</div>
+      <select id="sel-difficulty">
+        <option value="easy">Easy – wider gaps, slower</option>
+        <option value="normal" selected>Normal – balanced</option>
+        <option value="hard">Hard – tighter, faster</option>
+      </select>
+
+      <div class="ui-label">Graphics</div>
+      <select id="sel-graphics">
+        <option value="high" selected>High – glow & particles</option>
+        <option value="low">Low – simpler visuals</option>
+      </select>
+
+      <div class="ui-label">Vibration</div>
+      <select id="sel-vibration">
+        <option value="on" selected>On</option>
+        <option value="off">Off</option>
+      </select>
+
+      <div class="ui-label">Background Music</div>
+      <input id="bgm-file-input" class="ui-input" type="file" accept="audio/*" />
+      <div class="ui-small" style="margin-top:4px;text-align:left;">
+        Select an audio file from your device. It will loop while 1x1 is open.
+      </div>
+
+      <div class="ui-buttons" style="margin-top:12px;">
+        <button class="btn" id="btn-settings-ok">
+          <span class="btn-icon">✔︎</span><span class="btn-label">Done</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Credits -->
+  <div id="ui-credits" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Credits</span></div>
+      <div class="ui-subtitle">
+        1x1 – a minimal arcade experiment.
+      </div>
+      <div style="font-size:13px;opacity:.85;margin-bottom:14px;line-height:1.6;">
+        • Concept & creator: <b>@ashkanwaisi</b><br>
+        • Project label: <b>ashkan wisi</b><br>
+        • Designed for mobile – portrait only.
+      </div>
+
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-credits-back">
+            <div class="list-icon">⌂</div>
+            <div class="list-label">
+              Back
+              <div class="list-meta">Return to main menu</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial -->
+  <div id="ui-tutorial" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>How to Play</span></div>
+      <div class="ui-subtitle">Mobile-only controls.</div>
+      <ul style="font-size:13px;opacity:.85;margin-bottom:14px;padding-left:18px;line-height:1.5;text-align:left;">
+        <li>Drag up / down on the screen to move your block.</li>
+        <li>Avoid the glowing white pillars.</li>
+        <li>Collect glowing squares for temporary power-ups.</li>
+        <li>When the AI face ring turns green, tap it to dash and break pillars for a short time.</li>
+        <li>Score increases over time; difficulty and events evolve while you play.</li>
+      </ul>
+      <div class="ui-buttons">
+        <button class="btn" id="btn-tutorial-ok">
+          <span class="btn-icon">✔︎</span><span class="btn-label">Got it</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Missions -->
+  <div id="ui-missions" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Missions</span></div>
+      <div class="ui-subtitle">
+        Complete tasks to earn XP and unlock cosmetics.
+      </div>
+      <div id="missions-list" style="font-size:12px;max-height:220px;overflow:auto;margin-bottom:10px;"></div>
+
+      <div class="ui-buttons" style="margin-top:4px;">
+        <button class="btn" id="btn-missions-claim">
+          <span class="btn-icon">✔︎</span><span class="btn-label">Claim Rewards</span>
+        </button>
+      </div>
+
+      <div class="section" style="margin-top:10px;">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-missions-refresh">
+            <div class="list-icon">⟳</div>
+            <div class="list-label">
+              Refresh missions
+              <div class="list-meta">Get a new set of tasks</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+          <button class="list-item-btn" id="btn-missions-back">
+            <div class="list-icon">⌂</div>
+            <div class="list-label">
+              Back
+              <div class="list-meta">Return to main menu</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ui-small">
+        Level: <span id="missions-level">1</span> · XP: <span id="missions-xp">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trophies -->
+  <div id="ui-trophies" class="ui-layer hidden">
+    <div class="ui-panel">
+      <div class="ui-title"><span>Trophies</span></div>
+      <div class="ui-subtitle">
+        Milestones you've reached in 1x1.
+      </div>
+      <ul id="trophies-list" style="font-size:12px;opacity:.9;margin-bottom:14px;padding-left:16px;line-height:1.6;text-align:left;"></ul>
+
+      <div class="section">
+        <div class="section-inner">
+          <button class="list-item-btn" id="btn-trophies-back">
+            <div class="list-icon">⌂</div>
+            <div class="list-label">
+              Back
+              <div class="list-meta">Return to main menu</div>
+            </div>
+            <div class="list-chevron">›</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const WIDTH = 1080, HEIGHT = 1920;
+  canvas.width = WIDTH; canvas.height = HEIGHT;
+
+  const NAME_KEY = "1x1_player_name";
+  const BEST_KEY = "1x1_best";
+  const XP_KEY   = "1x1_xp";
+  const LVL_KEY  = "1x1_lvl";
+  const TROPHY_KEY = "1x1_trophies";
+  const SKIN_KEY = "1x1_skin";
+  const VIBRATION_KEY = "1x1_vibration";
+
+  let playerName = localStorage.getItem(NAME_KEY) || "";
+  let bestScore = Number(localStorage.getItem(BEST_KEY) || 0);
+  let xp = Number(localStorage.getItem(XP_KEY) || 0);
+  let playerLevel = Number(localStorage.getItem(LVL_KEY) || 1);
+  if (playerLevel < 1) playerLevel = 1;
+
+  let vibrationEnabledRaw = localStorage.getItem(VIBRATION_KEY);
+  let vibrationEnabled = vibrationEnabledRaw === null ? true : (vibrationEnabledRaw === "1");
+
+  let trophies = JSON.parse(localStorage.getItem(TROPHY_KEY) || "{}");
+
+  let difficulty = "normal";
+  let graphics = "high";
+
+  const playerSkins = [
+    { name:"Green Neo",  color:"#4caf50", unlockLevel:1 },
+    { name:"Cyan Glow",  color:"#00e5ff", unlockLevel:2 },
+    { name:"Purple Core",color:"#b388ff", unlockLevel:3 },
+    { name:"Amber Heat", color:"#ffb300", unlockLevel:4 },
+    { name:"Neon White", color:"#ffffff", unlockLevel:6 }
+  ];
+
+  const savedSkinIndex = Number(localStorage.getItem(SKIN_KEY) || 0);
+  const PLAYER_SIZE = 70;
+
+  const player = {
+    x:160,
+    y:HEIGHT/2 - PLAYER_SIZE/2,
+    size:PLAYER_SIZE,
+    speed:16,
+    skinIndex:Math.min(savedSkinIndex, playerSkins.length-1),
+    hasShield:false,
+    isGhost:false,
+    scale:1
+  };
+
+  const OBSTACLE_WIDTH = 80;
+  const BASE_GAP = 320;
+
+  const obstacles=[], enemies=[], powerups=[], particles=[];
+  let gapSize=BASE_GAP;
+  let obstacleSpeed=14, obstacleSpeedMax=26;
+  let obstacleSpawnInterval=1050,lastObstacleSpawn=0;
+  let enemySpawnInterval=4200,lastEnemySpawn=0;
+  let powerupSpawnInterval=6000,lastPowerupSpawn=0;
+  const POWERUP_TYPES=["slow","shrink","shield","ghost"];
+
+  let ultimateCharge=0, ultimateChargeTime=15000;
+  let ultimateReady=false, ultimateActive=false, ultimateTimer=0;
+  let ultimateParticleTimer = 0; // تایمر برای پارتیکل‌های رنگارنگ در حالت READY/DASH
+
+  let score=0,lastTime=0;
+  let gameOver=false,isPlaying=false,isPaused=false;
+  let timeScale=1,slowMoTimer=0,shrinkTimer=0,shieldTimer=0,ghostTimer=0;
+  let shakeTime=0,shakeDuration=260,shakeMagnitude=8;
+  let comboText="",comboTextTimer=0;
+  let level=1;
+  let aiMood="neutral",aiMoodTimer=0;
+  let aiSpeech="",aiSpeechTimer=0;
+
+  let lastScoreForShare=0;
+  let dashCount=0, closeCallCount=0;
+
+  let currentEvent="none",eventTimer=0,eventCooldownTimer=0;
+  let flashAlpha=0;
+
+  const ultimateBtn=document.getElementById("ultimate-btn");
+  const hudBar=document.getElementById("hud-bar");
+  const tutorialHint=document.getElementById("tutorial-hint");
+  const hudDiff=document.getElementById("hud-difficulty");
+  const hudRank=document.getElementById("hud-rank");
+  const hudEvent=document.getElementById("hud-event");
+
+  let bgmAudio = null;
+
+  function haptic(pattern){
+    if(!vibrationEnabled) return;
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  }
+
+  function getDifficultyLabel(){
+    return difficulty==="easy"?"Easy":difficulty==="hard"?"Hard":"Normal";
+  }
+  function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+  function clampPlayer(){
+    const size=player.size*player.scale;
+    if(player.y<0)player.y=0;
+    if(player.y+size>HEIGHT)player.y=HEIGHT-size;
+  }
+  function setAiMood(mood,duration=800){aiMood=mood;aiMoodTimer=duration}
+  function setAiSpeech(text,duration=1200){aiSpeech=text;aiSpeechTimer=duration}
+
+  function getRank(scoreVal){
+    if(scoreVal>=4000)return "Neon Master";
+    if(scoreVal>=2500)return "Crystal";
+    if(scoreVal>=1200)return "Gold";
+    if(scoreVal>=500)return "Silver";
+    return "Bronze";
+  }
+
+  function updateHudMeta(){
+    const r=getRank(bestScore);
+    hudRank.textContent="Rank: "+r;
+  }
+
+  function addXP(amount){
+    xp+=amount;
+    if(xp<0)xp=0;
+    let leveledUp=false;
+    while(xp>=playerLevel*200){
+      xp-=playerLevel*200;
+      playerLevel++;
+      leveledUp=true;
+    }
+    localStorage.setItem(XP_KEY,String(xp));
+    localStorage.setItem(LVL_KEY,String(playerLevel));
+    if(leveledUp){
+      setAiMood("happy",1500);
+      setAiSpeech("Level "+playerLevel+" reached!",1500);
+      haptic([40,40,80]);
+    }
+  }
+
+  let missions=[];
+  function defaultMissions(){
+    return [
+      {id:"score_1000", text:"Reach 1000 score in one run", type:"scoreRun", target:1000, progress:0, rewardXP:80, done:false, claimed:false},
+      {id:"dash_5", text:"Use dash 5 times", type:"dashCount", target:5, progress:0, rewardXP:60, done:false, claimed:false},
+      {id:"close_10", text:"Trigger 10 close calls", type:"closeCount", target:10, progress:0, rewardXP:60, done:false, claimed:false}
+    ];
+  }
+  function loadMissions(){
+    const s=localStorage.getItem("1x1_missions");
+    if(s){missions=JSON.parse(s);}else{missions=defaultMissions();}
+  }
+  function saveMissions(){localStorage.setItem("1x1_missions",JSON.stringify(missions));}
+  function refreshMissions(){
+    missions=defaultMissions();
+    dashCount=0;closeCallCount=0;
+    saveMissions();
+  }
+  function updateMissionsUI(){
+    const list=document.getElementById("missions-list");
+    list.innerHTML="";
+    missions.forEach(m=>{
+      const pct=Math.min(100,Math.floor((m.progress/m.target)*100));
+      const line=document.createElement("div");
+      line.style.marginBottom="6px";
+      line.innerHTML=
+        `<div style="margin-bottom:2px;">${m.done?"✅":"•"} ${m.text}</div>
+         <div style="font-size:11px;opacity:.8;">
+           Progress: ${m.progress}/${m.target} (${pct}%)
+           · Reward: ${m.rewardXP} XP
+           ${m.claimed?"· <span style='color:#0f0;'>CLAIMED</span>":(m.done?"· <span style='color:#ffeb3b;'>READY</span>":"")}
+         </div>`;
+      list.appendChild(line);
+    });
+    document.getElementById("missions-level").textContent=playerLevel;
+    document.getElementById("missions-xp").textContent=xp;
+  }
+  function missionEvent(type,data){
+    missions.forEach(m=>{
+      if(m.done)return;
+      if(m.type===type){
+        if(type==="scoreRun"){
+          if(data>m.progress)m.progress=Math.min(data,m.target);
+        }else{
+          m.progress=Math.min(m.progress+1,m.target);
+        }
+        if(m.progress>=m.target){
+          m.done=true;
+          setAiSpeech("Mission ready: "+m.text,1400);
+          haptic([60,40,60]);
+        }
+      }
+    });
+    saveMissions();
+  }
+  function claimMissionRewards(){
+    let total=0;
+    missions.forEach(m=>{
+      if(m.done && !m.claimed){
+        total+=m.rewardXP;
+        m.claimed=true;
+      }
+    });
+    if(total>0){
+      addXP(total);
+      setAiSpeech("+"+total+" XP from missions!",1400);
+    }
+    saveMissions();
+  }
+
+  const TROPHY_DEFS=[
+    {id:"first_dash", text:"Used dash for the first time"},
+    {id:"score_1000", text:"Reached 1000 score"},
+    {id:"score_3000", text:"Reached 3000 score"},
+    {id:"close_10", text:"Hit 10 close calls in total"}
+  ];
+  function unlockTrophy(id){
+    if(!trophies[id]){
+      trophies[id]=true;
+      localStorage.setItem(TROPHY_KEY,JSON.stringify(trophies));
+      setAiSpeech("Trophy unlocked!",1000);
+      haptic([50,50,120]);
+    }
+  }
+  function updateTrophiesUI(){
+    const ul=document.getElementById("trophies-list");
+    ul.innerHTML="";
+    TROPHY_DEFS.forEach(t=>{
+      const li=document.createElement("li");
+      const has=trophies[t.id];
+      li.innerHTML=(has?"✅ ":"⬜ ")+t.text;
+      ul.appendChild(li);
+    });
+  }
+
+  function spawnObstacle(){
+    const baseCenterY=randomInt(200,HEIGHT-200);
+    const type=Math.random();
+    let style="normal";
+    if(type<0.25) style="movingGap";
+    else if(type<0.5) style="fast";
+    obstacles.push({
+      x:WIDTH+60,
+      baseCenterY,
+      centerY:baseCenterY,
+      width:OBSTACLE_WIDTH,
+      phase:Math.random()*Math.PI*2,
+      style
+    });
+  }
+  function spawnEnemy(){
+    const y=randomInt(140,HEIGHT-140);
+    enemies.push({
+      x:WIDTH+80,y,radius:30,
+      speedX:randomInt(14,20),
+      wobblePhase:Math.random()*Math.PI*2
+    });
+  }
+  function spawnPowerup(){
+    const type=POWERUP_TYPES[randomInt(0,POWERUP_TYPES.length-1)];
+    const y=randomInt(160,HEIGHT-160);
+    powerups.push({x:WIDTH+60,y,size:50,type});
+  }
+
+  function spawnParticles(x,y,color,amount=18,speed=5){
+    const maxParticles=graphics==="low"?40:120;
+    if(particles.length>maxParticles)return;
+    const actual=graphics==="low"?Math.floor(amount*.6):amount;
+    for(let i=0;i<actual;i++){
+      const ang=Math.random()*Math.PI*2;
+      const sp=speed*(.5+Math.random());
+      particles.push({
+        x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+        life:600+Math.random()*400,
+        maxLife:600+Math.random()*400,
+        color
+      });
+    }
+  }
+
+  function randomRainbowColor(){
+    const h = Math.random()*360;
+    return `hsl(${h},100%,60%)`;
+  }
+
+  function applyPowerup(type){
+    switch(type){
+      case"slow":
+        slowMoTimer=2500;timeScale=.4;setAiMood("happy");setAiSpeech("Slowing time...",1000);break;
+      case"shrink":
+        player.scale=.6;shrinkTimer=4000;setAiMood("happy");setAiSpeech("Smaller hitbox!",1000);break;
+      case"shield":
+        player.hasShield=true;shieldTimer=6000;setAiMood("happy");setAiSpeech("Shield up",1000);break;
+      case"ghost":
+        player.isGhost=true;ghostTimer=2200;setAiMood("happy");setAiSpeech("Ghost mode",1000);break;
+    }
+    haptic(40);
+  }
+
+  function initGameFromSettings(){
+    if(difficulty==="easy"){
+      gapSize=BASE_GAP+80;obstacleSpeed=11;obstacleSpawnInterval=1150;
+    }else if(difficulty==="hard"){
+      gapSize=BASE_GAP-60;obstacleSpeed=16;obstacleSpawnInterval=900;
+    }else{
+      gapSize=BASE_GAP;obstacleSpeed=14;obstacleSpawnInterval=1050;
+    }
+    hudDiff.textContent="Mode: "+getDifficultyLabel();
+    updateHudMeta();
+  }
+
+  function resetGame(){
+    score=0;level=1;
+    gameOver=false;isPaused=false;
+    obstacles.length=0;enemies.length=0;powerups.length=0;particles.length=0;
+    player.y=HEIGHT/2-player.size/2;player.scale=1;
+    player.hasShield=false;player.isGhost=false;
+    slowMoTimer=0;shrinkTimer=0;shieldTimer=0;ghostTimer=0;
+    timeScale=1;shakeTime=0;comboText="";comboTextTimer=0;
+    aiMood="neutral";aiMoodTimer=0;aiSpeech="";aiSpeechTimer=0;
+    lastObstacleSpawn=0;lastEnemySpawn=0;lastPowerupSpawn=0;lastTime=0;
+    ultimateCharge=0;ultimateReady=false;ultimateActive=false;ultimateTimer=0;
+    ultimateParticleTimer = 0;
+    dashCount=0;closeCallCount=0;
+    currentEvent="none";eventTimer=0;eventCooldownTimer=10000;
+    flashAlpha=0;
+    ultimateBtn.classList.add("hidden");
+    initGameFromSettings();
+  }
+
+  function tryActivateUltimate(){
+    if(!ultimateReady||gameOver||!isPlaying||isPaused)return;
+    ultimateReady=false;ultimateActive=true;ultimateTimer=4500;
+    ultimateCharge=0;
+    ultimateParticleTimer = 0;
+    setAiMood("happy",1500);
+    setAiSpeech("Dash!",600);
+    flashAlpha=0.6;
+    dashCount++;
+    missionEvent("dashCount");
+    unlockTrophy("first_dash");
+    haptic([30,30,90]);
+    ultimateBtn.classList.add("hidden");
+
+    // یک انفجار اولیه پارتیکل رنگی هنگام شروع دَش
+    const size=player.size*player.scale;
+    const cx=player.x+size/2;
+    const cy=player.y+size/2;
+    for(let i=0;i<5;i++){
+      spawnParticles(cx,cy,randomRainbowColor(),18,7);
+    }
+  }
+
+  function startRandomEvent(){
+    const types=["hyper","calm","tight"];
+    const t=types[randomInt(0,types.length-1)];
+    currentEvent=t;
+    eventTimer=8000;
+    let label="None";
+    if(t==="hyper"){label="Hyper Speed";setAiSpeech("Hyper phase!",900);}
+    if(t==="calm"){label="Calm Flow";setAiSpeech("Calm window",900);}
+    if(t==="tight"){label="Tight Gaps";setAiSpeech("Careful now…",900);}
+    hudEvent.textContent="Event: "+label;
+  }
+  function clearEvent(){
+    currentEvent="none";eventTimer=0;hudEvent.textContent="Event: None";
+  }
+
+  function handleHit(cx,cy){
+    if(player.hasShield){
+      player.hasShield=false;shieldTimer=0;
+      setAiMood("scared",800);
+      setAiSpeech("Shield broke!",700);
+      spawnParticles(cx,cy,"#ffeb3b",20,6);
+      shakeTime=shakeDuration*0.5;
+      haptic([20,40,80]);
+      return;
+    }
+    gameOver=true;isPlaying=false;
+    setAiMood("sad",1500);
+    setAiSpeech("We'll get it next time.",1400);
+    const skin=playerSkins[player.skinIndex];
+    spawnParticles(cx,cy,skin.color,30,7);
+    timeScale=1;shakeTime=200;ultimateBtn.classList.add("hidden");
+    flashAlpha=0.5;
+    lastScoreForShare=score;
+    if(score>=1000) unlockTrophy("score_1000");
+    if(score>=3000) unlockTrophy("score_3000");
+
+    const gainedXP=Math.floor(score*0.05);
+    addXP(gainedXP);
+
+    showLayer("ui-gameover");
+    document.getElementById("go-score").textContent=Math.floor(score);
+    document.getElementById("go-best").textContent=Math.floor(bestScore);
+    document.getElementById("go-level").textContent=playerLevel;
+    document.getElementById("go-xp").textContent=xp;
+    document.getElementById("go-rank").textContent=getRank(bestScore);
+    hudBar.classList.add("hidden");
+    tutorialHint.classList.add("hidden");
+    haptic([40,80,120]);
+  }
+
+  function update(deltaRaw){
+    const delta=deltaRaw*timeScale;
+
+    score+=delta*0.035;
+    missionEvent("scoreRun",Math.floor(score));
+
+    if(score>bestScore){
+      bestScore=score;
+      localStorage.setItem(BEST_KEY,String(bestScore));
+      document.getElementById("menu-best-score").textContent=Math.floor(bestScore);
+      updateHudMeta();
+    }
+
+    level=1+Math.floor(score/250);
+    const targetGap=BASE_GAP-Math.min(80,(level-1)*10);
+    gapSize+= (targetGap-gapSize)*0.03;
+
+    obstacleSpeed+=delta*0.00012;
+    if(obstacleSpeed>obstacleSpeedMax)obstacleSpeed=obstacleSpeedMax;
+
+    if(slowMoTimer>0){slowMoTimer-=deltaRaw;if(slowMoTimer<=0){slowMoTimer=0;timeScale=1;}}
+    if(shrinkTimer>0){shrinkTimer-=deltaRaw;if(shrinkTimer<=0){shrinkTimer=0;player.scale=1;}}
+    if(shieldTimer>0){shieldTimer-=deltaRaw;if(shieldTimer<=0){shieldTimer=0;player.hasShield=false;}}
+    if(ghostTimer>0){ghostTimer-=deltaRaw;if(ghostTimer<=0){ghostTimer=0;player.isGhost=false;}}
+    if(aiMoodTimer>0){aiMoodTimer-=deltaRaw;if(aiMoodTimer<=0){aiMoodTimer=0;aiMood="neutral";}}
+    if(aiSpeechTimer>0){aiSpeechTimer-=deltaRaw;if(aiSpeechTimer<=0){aiSpeechTimer=0;aiSpeech="";}}
+    if(comboTextTimer>0){comboTextTimer-=deltaRaw;if(comboTextTimer<0)comboTextTimer=0;}
+    if(shakeTime>0){shakeTime-=deltaRaw;if(shakeTime<0)shakeTime=0;}
+    if(flashAlpha>0){flashAlpha-=deltaRaw/400;if(flashAlpha<0)flashAlpha=0;}
+
+    if(!ultimateActive){
+      if(!ultimateReady){
+        ultimateCharge+=deltaRaw/ultimateChargeTime;
+        if(ultimateCharge>=1){
+          ultimateCharge=1;ultimateReady=true;
+          setAiMood("happy",1500);setAiSpeech("Dash ready",800);
+          haptic(40);
+        }
+      }
+    }else{
+      ultimateTimer-=deltaRaw;
+      if(ultimateTimer<=0){
+        ultimateActive=false;ultimateCharge=0;ultimateTimer=0;
+        ultimateParticleTimer = 0;
+        setAiMood("neutral",500);
+      }else{
+        // در حالت دَش، به صورت مداوم پارتیکل‌های رنگی از کاراکتر خارج می‌شود
+        ultimateParticleTimer += deltaRaw;
+        const emitInterval = 80; // هر ~۸۰ms یک سری پارتیکل
+        const size=player.size*player.scale;
+        const cx=player.x+size/2;
+        const cy=player.y+size/2;
+        while(ultimateParticleTimer>emitInterval){
+          ultimateParticleTimer-=emitInterval;
+          const color=randomRainbowColor();
+          spawnParticles(cx,cy,color,10,6);
+        }
+      }
+    }
+
+    if(isPlaying && !isPaused && !gameOver && ultimateReady && !ultimateActive){
+      ultimateBtn.classList.remove("hidden");
+    }else ultimateBtn.classList.add("hidden");
+
+    if(!gameOver && isPlaying){
+      if(eventTimer>0){
+        eventTimer-=deltaRaw;
+        if(eventTimer<=0) clearEvent();
+      }else{
+        if(eventCooldownTimer>0) eventCooldownTimer-=deltaRaw;
+        if(eventCooldownTimer<=0 && score>200){
+          startRandomEvent();
+          eventCooldownTimer=15000;
+        }
+      }
+    }
+
+    const size=player.size*player.scale;
+    const px1=player.x, px2=player.x+size;
+    const py1=player.y, py2=player.y+size;
+
+    if(lastTime-lastObstacleSpawn>obstacleSpawnInterval){
+      spawnObstacle();lastObstacleSpawn=lastTime;
+    }
+    if(score>160 && lastTime-lastEnemySpawn>enemySpawnInterval){
+      spawnEnemy();lastEnemySpawn=lastTime;
+    }
+    if(score>140 && lastTime-lastPowerupSpawn>powerupSpawnInterval){
+      spawnPowerup();lastPowerupSpawn=lastTime;
+    }
+
+    const waveAmplitude=(currentEvent==="tight"?30:55);
+    const waveSpeed=0.005;
+    let nearMissThisFrame=false;
+
+    let eventSpeedMul=1;
+    if(currentEvent==="hyper")eventSpeedMul=1.4;
+    if(currentEvent==="calm")eventSpeedMul=0.7;
+
+    const obstacleMoveSpeed=(ultimateActive?obstacleSpeed*2.1:obstacleSpeed)*eventSpeedMul;
+
+    for(let i=obstacles.length-1;i>=0;i--){
+      const o=obstacles[i];
+      o.x-=obstacleMoveSpeed;
+      if(currentEvent==="tight") o.centerY=o.baseCenterY;
+      else{
+        o.phase+=delta*waveSpeed;
+        let mod=o.style==="movingGap"?1.6:1;
+        o.centerY=o.baseCenterY+Math.sin(o.phase)*waveAmplitude*mod;
+      }
+      if(o.x+o.width<0){obstacles.splice(i,1);continue;}
+
+      const topHeight=o.centerY-gapSize/2;
+      const bottomY=o.centerY+gapSize/2;
+      const bottomHeight=HEIGHT-bottomY;
+
+      const hitTop=px1<o.x+o.width && px2>o.x && py1<topHeight;
+      const hitBottom=px1<o.x+o.width && px2>o.x && py2>bottomY;
+
+      if(!player.isGhost && !ultimateActive && !hitTop && !hitBottom && px2>o.x && px1<o.x+o.width){
+        const distTop=Math.abs(py1-topHeight);
+        const distBottom=Math.abs(py2-bottomY);
+        const minDist=Math.min(distTop,distBottom);
+        if(minDist<26) nearMissThisFrame=true;
+      }
+
+      if(hitTop||hitBottom){
+        if(ultimateActive){
+          const cx=o.x+o.width/2, cy=o.centerY;
+          spawnParticles(cx,cy,"#ffffff",24,8);
+          obstacles.splice(i,1);
+          continue;
+        }else if(!player.isGhost){
+          handleHit(px1+size/2,py1+size/2);
+          break;
+        }
+      }
+    }
+
+    for(let i=enemies.length-1;i>=0;i--){
+      const en=enemies[i];
+      const enemySpeed=(ultimateActive?en.speedX*2.1:en.speedX)*eventSpeedMul;
+      en.x-=enemySpeed;
+      en.wobblePhase+=delta*0.006;
+      en.y+=Math.sin(en.wobblePhase)*1.1;
+      if(en.x+en.radius<0){enemies.splice(i,1);continue;}
+      const dx=(px1+px2)/2-en.x, dy=(py1+py2)/2-en.y;
+      const dist=Math.hypot(dx,dy);
+      if(!player.isGhost && dist<en.radius+size/2){
+        handleHit(en.x,en.y);
+        break;
+      }
+    }
+
+    for(let i=powerups.length-1;i>=0;i--){
+      const p=powerups[i];
+      const ps=(ultimateActive?obstacleSpeed*2.1*0.9:obstacleSpeed*0.9)*eventSpeedMul;
+      p.x-=ps;
+      if(p.x+p.size<0){powerups.splice(i,1);continue;}
+      const cx=p.x+p.size/2, cy=p.y+p.size/2;
+      const centerX=(px1+px2)/2, centerY=(py1+py2)/2;
+      const dist=Math.hypot(centerX-cx,centerY-cy);
+      if(dist<p.size/2+size/2){
+        applyPowerup(p.type);
+        spawnParticles(cx,cy,"#ffffff",12,3);
+        powerups.splice(i,1);
+      }
+    }
+
+    for(let i=particles.length-1;i>=0;i--){
+      const pa=particles[i];
+      pa.life-=deltaRaw;
+      if(pa.life<=0){particles.splice(i,1);continue;}
+      pa.x+=pa.vx*(deltaRaw/16);
+      pa.y+=pa.vy*(deltaRaw/16);
+    }
+
+    if(nearMissThisFrame){
+      closeCallCount++;
+      missionEvent("closeCount");
+      if(closeCallCount>=10) unlockTrophy("close_10");
+      comboText="CLOSE!";comboTextTimer=400;
+      haptic(20);
+    }
+
+    addXP(deltaRaw*0.002);
+  }
+
+  function drawBackgroundGrid(){
+    ctx.fillStyle="#000";ctx.fillRect(0,0,WIDTH,HEIGHT);
+    ctx.fillStyle="#111";
+    const cell=90;
+    for(let y=0;y<HEIGHT;y+=cell){
+      for(let x=0;x<WIDTH;x+=cell){
+        ctx.fillRect(x+1,y+1,cell-2,cell-2);
+      }
+    }
+  }
+
+  function drawAiFace(){
+    const x = WIDTH - 160;
+    const y = 200;
+    ctx.save();
+    ctx.translate(x,y);
+
+    const cardW = 200;
+    const cardH = 160;
+    const radius = 28;
+
+    if(graphics==="high"){
+      ctx.shadowBlur=26;
+      ctx.shadowColor="rgba(10,132,255,.45)";
+    }
+    const grdCard=ctx.createLinearGradient(-cardW/2,-cardH/2,cardW/2,cardH/2);
+    grdCard.addColorStop(0,"#061323");
+    grdCard.addColorStop(1,"#050910");
+    ctx.fillStyle=grdCard;
+    ctx.beginPath();
+    ctx.roundRect(-cardW/2,-cardH/2,cardW,cardH,radius);
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+    ctx.lineWidth=1.6;
+    ctx.strokeStyle="rgba(255,255,255,.16)";
+    ctx.beginPath();
+    ctx.roundRect(-cardW/2,-cardH/2,cardW,cardH,radius);
+    ctx.stroke();
+
+    ctx.fillStyle="rgba(255,255,255,.08)";
+    ctx.fillRect(-cardW/2+18,cardH/2-14,cardW-36,4);
+
+    const rOuter=60;
+    const charge=ultimateActive?1:ultimateCharge;
+    ctx.lineWidth=4;
+    ctx.strokeStyle="rgba(255,255,255,.16)";
+    ctx.beginPath();
+    ctx.arc(0,-10,rOuter,0,Math.PI*2);
+    ctx.stroke();
+
+    let progressColor="#0A84FF";
+    if(ultimateReady)progressColor="#00C853";
+    if(ultimateActive)progressColor="#00E676";
+    if(charge>0.01){
+      ctx.strokeStyle=progressColor;
+      ctx.beginPath();
+      ctx.arc(0,-10,rOuter,-Math.PI/2,-Math.PI/2+charge*Math.PI*2);
+      ctx.stroke();
+    }
+
+    const rInner=38;
+    const grdFace=ctx.createRadialGradient(0,-14,4,0,-10,rInner);
+    if(ultimateReady||ultimateActive){
+      grdFace.addColorStop(0,"#0f3b1e");
+      grdFace.addColorStop(1,"#021108");
+    }else{
+      grdFace.addColorStop(0,"#102745");
+      grdFace.addColorStop(1,"#020710");
+    }
+    if(graphics==="high"){
+      ctx.shadowBlur=24;
+      ctx.shadowColor=ultimateReady||ultimateActive?"rgba(0,230,118,.9)":"rgba(10,132,255,.9)";
+    }
+    ctx.fillStyle=grdFace;
+    ctx.beginPath();
+    ctx.arc(0,-10,rInner,0,Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur=0;
+
+    ctx.lineWidth=3;
+    ctx.strokeStyle="rgba(255,255,255,.9)";
+    ctx.lineCap="round";
+
+    ctx.beginPath();
+    if(aiMood==="scared"){
+      ctx.rect(-22,-22,9,16);
+      ctx.rect(13,-22,9,16);
+    }else if(aiMood==="sad"){
+      ctx.moveTo(-24,-12);ctx.quadraticCurveTo(-12,-6,-2,-10);
+      ctx.moveTo(2,-10);ctx.quadraticCurveTo(12,-6,24,-12);
+    }else{
+      ctx.moveTo(-24,-15);ctx.quadraticCurveTo(-12,-18,-2,-15);
+      ctx.moveTo(2,-15);ctx.quadraticCurveTo(12,-18,24,-15);
+    }
+    ctx.stroke();
+
+    ctx.beginPath();
+    if(aiMood==="happy"||ultimateReady||ultimateActive){
+      ctx.moveTo(-18,0);ctx.quadraticCurveTo(0,10,18,0);
+    }else if(aiMood==="sad"){
+      ctx.moveTo(-18,4);ctx.quadraticCurveTo(0,-2,18,4);
+    }else if(aiMood==="scared"){
+      ctx.rect(-12,-1,24,10);
+    }else{
+      ctx.moveTo(-12,4);ctx.lineTo(12,4);
+    }
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle="rgba(255,255,255,.3)";
+    ctx.lineWidth=1.4;
+    ctx.arc(-14,-30,5,0,Math.PI*2);
+    ctx.stroke();
+
+    if(aiSpeech){
+      ctx.font="13px -apple-system,system-ui,sans-serif";
+      ctx.textAlign="center";ctx.textBaseline="top";
+      ctx.fillStyle="rgba(255,255,255,.9)";
+      ctx.fillText(aiSpeech,0,cardH/2+8);
+    }
+
+    ctx.restore();
+  }
+
+  function drawGameOverOverlay(){
+    ctx.save();
+    ctx.fillStyle="rgba(0,0,0,.97)";
+    ctx.fillRect(0,0,WIDTH,HEIGHT);
+    ctx.fillStyle="#050505";
+    const cell=90;
+    for(let y=0;y<HEIGHT;y+=cell){
+      for(let x=0;x<WIDTH;x+=cell){
+        ctx.fillRect(x+2,y+2,cell-4,cell-4);
+      }
+    }
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.font="64px -apple-system,system-ui,sans-serif";
+    ctx.fillStyle="#0A84FF";
+    ctx.fillText("GAME OVER",WIDTH/2,HEIGHT/2-20);
+    ctx.font="24px -apple-system,system-ui,sans-serif";
+    ctx.fillStyle="rgba(255,255,255,.7)";
+    ctx.fillText("Use Play Again or Main Menu",WIDTH/2,HEIGHT/2+30);
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.save();
+    if(shakeTime>0 && !isPaused && !gameOver){
+      const factor=shakeTime/shakeDuration;
+      const dx=(Math.random()*2-1)*shakeMagnitude*factor;
+      const dy=(Math.random()*2-1)*shakeMagnitude*factor;
+      ctx.translate(dx,dy);
+    }
+
+    drawBackgroundGrid();
+
+    if(graphics==="high"){ctx.shadowBlur=28;ctx.shadowColor="rgba(255,255,255,.9)";}
+    ctx.fillStyle="#ffffff";
+    for(const o of obstacles){
+      const topHeight=o.centerY-gapSize/2;
+      const bottomY=o.centerY+gapSize/2;
+      const bottomHeight=HEIGHT-bottomY;
+      ctx.fillRect(o.x,0,o.width,topHeight);
+      ctx.fillRect(o.x,bottomY,o.width,bottomHeight);
+    }
+    ctx.shadowBlur=0;
+
+    for(const en of enemies){
+      if(graphics==="high"){ctx.shadowBlur=18;ctx.shadowColor="rgba(255,23,68,.9)";}
+      ctx.fillStyle="#ff1744";
+      ctx.beginPath();ctx.arc(en.x,en.y,en.radius,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;
+    }
+
+    for(const p of powerups){
+      let col="#ffffff";
+      if(p.type==="slow")col="#00e5ff";
+      else if(p.type==="shrink")col="#ffeb3b";
+      else if(p.type==="shield")col="#69f0ae";
+      else if(p.type==="ghost")col="#b388ff";
+      if(graphics==="high"){ctx.shadowBlur=14;ctx.shadowColor=col;}
+      ctx.fillStyle=col;
+      ctx.beginPath();ctx.roundRect(p.x,p.y,p.size,p.size,8);ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fillStyle="#000";ctx.font="22px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
+      const label=p.type==="slow"?"S":p.type==="shrink"?"-":p.type==="shield"?"O":"G";
+      ctx.fillText(label,p.x+p.size/2,p.y+p.size/2);
+    }
+
+    for(const pa of particles){
+      const alpha=pa.life/pa.maxLife;
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=pa.color;
+      ctx.beginPath();ctx.arc(pa.x,pa.y,4,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+    }
+
+    const skin=playerSkins[player.skinIndex];
+    const size=player.size*player.scale;
+
+    // گلو برای کاراکتر – در حالت دَش خیلی قوی‌تر و سفید/رنگی
+    if(graphics==="high"){
+      if(ultimateActive){
+        ctx.shadowBlur = 50;
+        ctx.shadowColor = "rgba(255,255,255,.95)";
+      }else{
+        ctx.shadowBlur=26;
+        ctx.shadowColor=skin.color;
+      }
+    }
+    ctx.fillStyle=skin.color;
+    ctx.fillRect(player.x,player.y,size,size);
+    ctx.shadowBlur=0;
+
+    if(player.hasShield||player.isGhost){
+      ctx.lineWidth=4;
+      ctx.strokeStyle=player.hasShield?"#69f0ae":"#b388ff";
+      ctx.strokeRect(player.x-4,player.y-4,size+8,size+8);
+    }
+
+    ctx.fillStyle="#fff";
+    ctx.textAlign="left";ctx.textBaseline="top";
+    ctx.font="26px -apple-system,system-ui,sans-serif";
+    const displayName=playerName||"Player";
+
+    ctx.fillText("Player: "+displayName,24,80);
+    ctx.fillText("Score: "+Math.floor(score),24,116);
+    ctx.fillText("Best: "+Math.floor(bestScore),24,152);
+    ctx.fillText("Level: "+playerLevel,24,188);
+    ctx.fillText("Rank: "+getRank(bestScore),24,224);
+    ctx.font="22px -apple-system,system-ui,sans-serif";
+    ctx.fillText("Mode: "+getDifficultyLabel(),24,260);
+    ctx.fillText("Skin: "+skin.name,24,292);
+
+    if(comboTextTimer>0){
+      ctx.font="36px -apple-system,system-ui,sans-serif";
+      ctx.textAlign="center";ctx.textBaseline="middle";
+      ctx.fillStyle="#ffeb3b";
+      ctx.fillText(comboText,WIDTH/2,150);
+    }
+
+    drawAiFace();
+
+    if(flashAlpha>0){
+      ctx.globalAlpha=flashAlpha;
+      ctx.fillStyle="#ffffff";
+      ctx.fillRect(0,0,WIDTH,HEIGHT);
+      ctx.globalAlpha=1;
+    }
+
+    if(gameOver) drawGameOverOverlay();
+    ctx.restore();
+  }
+
+  function gameLoop(ts){
+    if(!lastTime)lastTime=ts;
+    const deltaRaw=ts-lastTime;lastTime=ts;
+    if(isPlaying && !isPaused && !gameOver){
+      update(deltaRaw);
+    }
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+  requestAnimationFrame(gameLoop);
+
+  let isDragging=false;
+  function getCanvasRect(){return canvas.getBoundingClientRect();}
+  function handleTouchMove(t){
+    const r=getCanvasRect();
+    const y=t.clientY-r.top;
+    const scaleY=HEIGHT/r.height;
+    player.y=y*scaleY-(player.size*player.scale)/2;
+    clampPlayer();
+  }
+  function aiHitTest(clientX,clientY){
+    const r=getCanvasRect();
+    const cx=clientX-r.left, cy=clientY-r.top;
+    const sx=WIDTH/r.width, sy=HEIGHT/r.height;
+    const gx=cx*sx, gy=cy*sy;
+    const faceX=WIDTH-160, faceY=200;
+    const dist=Math.hypot(gx-faceX,gy-faceY);
+    return dist<=120;
+  }
+
+  canvas.addEventListener("touchstart",e=>{
+    e.preventDefault();
+    const t=e.touches[0];
+    if(aiHitTest(t.clientX,t.clientY)){tryActivateUltimate();return;}
+    if(!isPlaying||isPaused||gameOver)return;
+    isDragging=true;handleTouchMove(t);
+  },{passive:false});
+  canvas.addEventListener("touchmove",e=>{
+    e.preventDefault();
+    if(!isPlaying||isPaused||gameOver||!isDragging)return;
+    handleTouchMove(e.touches[0]);
+  },{passive:false});
+  canvas.addEventListener("touchend",e=>{e.preventDefault();isDragging=false;},{passive:false});
+  canvas.addEventListener("touchcancel",e=>{e.preventDefault();isDragging=false;},{passive:false});
+
+  canvas.addEventListener("click",e=>{
+    if(aiHitTest(e.clientX,e.clientY)) tryActivateUltimate();
+  });
+
+  const nameInput=document.getElementById("player-name-input");
+  function showLayer(id){
+    const ids=[
+      "ui-name","ui-main-menu","ui-pause","ui-gameover",
+      "ui-skins","ui-settings","ui-credits","ui-tutorial",
+      "ui-missions","ui-trophies"
+    ];
+    ids.forEach(k=>{
+      const el=document.getElementById(k);
+      if(!el)return;
+      if(k===id)el.classList.remove("hidden");
+      else el.classList.add("hidden");
+    });
+  }
+
+  function updateLevelBadge(){
+    const badge=document.getElementById("app-level-badge");
+    if(badge) badge.textContent = playerLevel;
+  }
+
+  function startGame(){
+    resetGame();isPlaying=true;isPaused=false;gameOver=false;
+    showLayer("");hudBar.classList.remove("hidden");tutorialHint.classList.remove("hidden");
+    updateLevelBadge();
+  }
+  function goMainMenu(){
+    isPlaying=false;gameOver=false;isPaused=false;
+    showLayer("ui-main-menu");
+    hudBar.classList.add("hidden");tutorialHint.classList.add("hidden");
+    ultimateBtn.classList.add("hidden");
+    document.getElementById("menu-player-name").textContent=playerName||"Guest";
+    document.getElementById("menu-best-score").textContent=Math.floor(bestScore);
+    document.getElementById("menu-level").textContent=playerLevel;
+    document.getElementById("menu-rank").textContent=getRank(bestScore);
+    updateLevelBadge();
+  }
+
+  document.getElementById("btn-name-start").onclick=()=>{
+    const val=(nameInput.value||"").trim();
+    playerName=val||"Player";
+    localStorage.setItem(NAME_KEY,playerName);
+    goMainMenu();
+  };
+  document.getElementById("btn-name-skip").onclick=()=>{
+    if(!playerName)playerName="Player";
+    goMainMenu();
+  };
+  document.getElementById("btn-change-name").onclick=()=>{
+    showLayer("ui-name");
+    nameInput.value=playerName||"";nameInput.focus();
+  };
+
+  loadMissions();
+  updateHudMeta();
+
+  if(playerName){
+    goMainMenu();
+  }else{
+    showLayer("ui-name");nameInput.focus();
+  }
+
+  document.getElementById("btn-play").onclick=()=>startGame();
+  document.getElementById("btn-tutorial").onclick=()=>showLayer("ui-tutorial");
+  document.getElementById("btn-tutorial-ok").onclick=()=>showLayer("ui-main-menu");
+  document.getElementById("btn-credits").onclick=()=>showLayer("ui-credits");
+  document.getElementById("btn-credits-back").onclick=()=>showLayer("ui-main-menu");
+
+  document.getElementById("btn-missions").onclick=()=>{
+    updateMissionsUI();showLayer("ui-missions");
+  };
+  document.getElementById("btn-missions-back").onclick=()=>showLayer("ui-main-menu");
+  document.getElementById("btn-missions-refresh").onclick=()=>{
+    refreshMissions();updateMissionsUI();
+  };
+  document.getElementById("btn-missions-claim").onclick=()=>{
+    claimMissionRewards();updateMissionsUI();
+  };
+
+  document.getElementById("btn-trophies").onclick=()=>{
+    updateTrophiesUI();showLayer("ui-trophies");
+  };
+  document.getElementById("btn-trophies-back").onclick=()=>showLayer("ui-main-menu");
+
+  let previewSkinIndex=player.skinIndex;
+  function updateSkinPreview(){
+    const skin=playerSkins[previewSkinIndex];
+    const box=document.getElementById("skin-box");
+    const nameEl=document.getElementById("skin-name");
+    const status=document.getElementById("skin-status");
+    box.style.background=skin.color;
+    nameEl.textContent=skin.name;
+    if(playerLevel>=skin.unlockLevel){
+      status.textContent="Unlocked · requires level "+skin.unlockLevel;
+      status.style.color="#0f0";
+      document.getElementById("btn-skin-apply").disabled=false;
+      document.getElementById("btn-skin-apply").style.opacity="1";
+    }else{
+      status.textContent="Locked · reach level "+skin.unlockLevel;
+      status.style.color="#ffb300";
+      document.getElementById("btn-skin-apply").disabled=true;
+      document.getElementById("btn-skin-apply").style.opacity=".6";
+    }
+  }
+  function openSkinsUI(){
+    previewSkinIndex=player.skinIndex;
+    updateSkinPreview();showLayer("ui-skins");
+  }
+  document.getElementById("btn-skins").onclick=openSkinsUI;
+  document.getElementById("btn-skin-prev").onclick=()=>{
+    previewSkinIndex=(previewSkinIndex-1+playerSkins.length)%playerSkins.length;
+    updateSkinPreview();
+  };
+  document.getElementById("btn-skin-next").onclick=()=>{
+    previewSkinIndex=(previewSkinIndex+1)%playerSkins.length;
+    updateSkinPreview();
+  };
+  document.getElementById("btn-skin-apply").onclick=()=>{
+    const skin=playerSkins[previewSkinIndex];
+    if(playerLevel<skin.unlockLevel)return;
+    player.skinIndex=previewSkinIndex;
+    localStorage.setItem(SKIN_KEY,String(player.skinIndex));
+    setAiMood("happy",1000);setAiSpeech("Skin equipped",800);
+    showLayer("ui-main-menu");
+  };
+  document.getElementById("btn-skin-back").onclick=()=>showLayer("ui-main-menu");
+
+  document.getElementById("btn-settings").onclick=()=>{
+    document.getElementById("sel-difficulty").value=difficulty;
+    document.getElementById("sel-graphics").value=graphics;
+    document.getElementById("sel-vibration").value=vibrationEnabled?"on":"off";
+    showLayer("ui-settings");
+  };
+  document.getElementById("btn-settings-ok").onclick=()=>{
+    difficulty=document.getElementById("sel-difficulty").value;
+    graphics=document.getElementById("sel-graphics").value;
+    const vibVal=document.getElementById("sel-vibration").value;
+    vibrationEnabled = (vibVal==="on");
+    localStorage.setItem(VIBRATION_KEY, vibrationEnabled ? "1":"0");
+    initGameFromSettings();
+    showLayer("ui-main-menu");
+  };
+
+  const bgmInput = document.getElementById("bgm-file-input");
+  bgmInput.addEventListener("change", async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+      if(bgmAudio){
+        bgmAudio.pause();
+        URL.revokeObjectURL(bgmAudio.src);
+        bgmAudio = null;
+      }
+      const url = URL.createObjectURL(file);
+      const audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.5;
+      bgmAudio = audio;
+      await audio.play().catch(()=>{});
+      setAiSpeech("Custom music loaded",1000);
+    }catch(err){
+      console.error(err);
+      alert("Could not play this file on this device.");
+    }
+  });
+
+  document.getElementById("btn-resume").onclick=()=>{isPaused=false;showLayer("");};
+  document.getElementById("btn-restart-from-pause").onclick=()=>startGame();
+  document.getElementById("btn-home-from-pause").onclick=()=>goMainMenu();
+
+  document.getElementById("btn-retry").onclick=()=>startGame();
+  document.getElementById("btn-home").onclick=()=>goMainMenu();
+
+  document.getElementById("btn-share-score").onclick=async()=>{
+    const scoreInt=Math.floor(lastScoreForShare||score||0);
+    const modeLabel=getDifficultyLabel();
+    const bestInt=Math.floor(bestScore||0);
+    const displayName=playerName||"Player";
+    const rank=getRank(bestScore);
+
+    const text=
+`⬛ 1x1 – SCORE CARD ⬛
+
+👤 Player: ${displayName}
+⭐ Score: ${scoreInt}
+🏆 Best: ${bestInt}
+🎮 Mode: ${modeLabel}
+📊 Level: ${playerLevel}
+💠 Rank: ${rank}
+
+${displayName} just scored ${scoreInt} points in 1x1 by @ashkanwaisi.
+Can you beat this run?`;
+
+    try{
+      if(navigator.share){
+        await navigator.share({text});
+      }else if(navigator.clipboard){
+        await navigator.clipboard.writeText(text);
+        alert("Score card copied. Paste it anywhere to share.");
+      }else{
+        alert("Share not available. You can copy this text:\n\n"+text);
+      }
+    }catch{}
+  };
+
+  ultimateBtn.onclick=()=>tryActivateUltimate();
+
+  /* انیمیشن tap به استایل iOS برای تمام دکمه‌ها (به جز ultimate) */
+  function wireTapAnimation(){
+    const tappables=document.querySelectorAll(".btn, .list-item-btn");
+    tappables.forEach(el=>{
+      if(el.dataset.tapBound) return;
+      el.dataset.tapBound="1";
+      el.addEventListener("click",()=>{
+        if(el.id==="ultimate-btn") return; // ultimate از قبل ترنسفورم خودش را دارد
+        el.classList.remove("tapped");
+        void el.offsetWidth;
+        el.classList.add("tapped");
+        setTimeout(()=>el.classList.remove("tapped"),160);
+      });
+    });
+  }
+  wireTapAnimation();
+</script>
+</body>
+</html>
