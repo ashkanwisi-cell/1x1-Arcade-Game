@@ -1932,36 +1932,7 @@ Try to beat this run.`;
       if(ctx&&ctx.state==="suspended")ctx.resume();
     },true);
   })();
-<script type=”module”>
-  import { initializeApp } from “https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js”;
-  import { getFirestore, collection, addDoc }
-    from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
 
-  const firebaseConfig = {
-    apiKey: “...”,
-    authDomain: “...”,
-    projectId: “...”,
-    storageBucket: “...”,
-    messagingSenderId: “...”,
-    appId: “...”,
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  async function saveScoreToFirebase(score) {
-    try {
-      await addDoc(collection(db, “scores”), {
-        score: score,
-        createdAt: new Date().toISOString()
-      });
-      console.log(”Saved:”, score);
-    } catch (err) {
-      console.error(”Error saving score:”, err);
-    }
-  }
-
-  window.saveScoreToFirebase = saveScoreToFirebase;
 </script>
 </body>
 </html>
