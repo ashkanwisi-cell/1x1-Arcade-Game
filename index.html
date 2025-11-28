@@ -1875,7 +1875,10 @@ Try to beat this run.`;
       }
     }catch(e){}
   }
-
+function handleGameOver() {
+    showGameOverScreen();
+    savePlayerData(playerName, currentScore, playerLevel, activeSkin);
+  }
   (function attachSfxHooks(){
     const origStartGame=startGame;
     startGame=function(){
@@ -2030,4 +2033,5 @@ window.savePlayerData = savePlayerData;
 </script>
 </body>
 </html>
+
 
