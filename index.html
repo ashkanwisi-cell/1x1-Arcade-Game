@@ -1,1945 +1,251 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
-  <meta charset="UTF-8" />
-  <title>Adan 1x1</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="UTF-8">
+  <title>Focus Zone – Online Scores</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- فونت حرفه‌ای برای UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{width:100%;height:100%;overflow:hidden}
-    body{
-      background:#000;
-      color:#fff;
-      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,sans-serif;
-      display:flex;justify-content:center;align-items:center;
-      -webkit-user-select:none;user-select:none;touch-action:none;
-    }
-    #wrapper{
-      position:relative;width:100vw;max-width:1080px;
-      aspect-ratio:1080/1920;
-      border-radius:28px;border:1px solid rgba(255,255,255,.07);
-      box-shadow:0 24px 60px rgba(0,0,0,.9);
-      overflow:hidden;background:#000;
-    }
-    canvas{width:100%;height:100%;display:block;background:#000;touch-action:none}
-
-    .ui-layer{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;pointer-events:none;}
-    .ui-panel{
-      pointer-events:auto;
-      background:rgba(10,10,18,.94);
-      border-radius:22px;
-      padding:20px 22px;
-      box-shadow:0 20px 45px rgba(0,0,0,.85);
-      min-width:260px;max-width:380px;
-      border:1px solid rgba(255,255,255,.08);
-      backdrop-filter:blur(18px);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
 
-    .ui-app-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-    .ui-app-icon{
-      width:40px;height:40px;border-radius:12px;
-      background:linear-gradient(135deg,#0A84FF,#34C759);
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;font-size:18px;
-      box-shadow:0 8px 20px rgba(10,132,255,.6);
-      cursor:pointer;
-    }
-    .ui-app-title-block{display:flex;flex-direction:column;gap:2px;}
-    .ui-app-title{font-size:22px;font-weight:800;letter-spacing:.04em;}
-    .ui-app-subtitle{font-size:12px;opacity:.7;}
-
-    .ui-title{font-size:20px;font-weight:800;margin-bottom:6px;text-align:center;letter-spacing:.08em;text-transform:uppercase;}
-    .ui-title span{
-      display:inline-block;
-      background:linear-gradient(135deg,#0A84FF,#4f9dff);
-      -webkit-background-clip:text;background-clip:text;color:transparent;
-    }
-    .ui-subtitle{font-size:13px;opacity:.7;text-align:left;margin-bottom:14px;line-height:1.6;}
-    .ui-buttons{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
-    .btn{
-      border:none;border-radius:999px;
-      padding:9px 16px;font-size:14px;font-weight:600;
-      cursor:pointer;background:#0A84FF;color:#fefefe;
-      display:inline-flex;justify-content:center;align-items:center;gap:8px;
-      box-shadow:0 6px 16px rgba(10,132,255,.4);
-      width:100%;letter-spacing:.02em;-webkit-tap-highlight-color:transparent;
-      transition:transform .12s ease-out,box-shadow .12s ease-out,background-color .12s ease-out,opacity .12s ease-out;
-    }
-    .btn-icon{font-size:15px;opacity:.95;min-width:18px;display:inline-flex;justify-content:center;align-items:center;}
-    .btn-label{flex:1;text-align:center;}
-    .btn:active{transform:scale(.97);box-shadow:0 3px 10px rgba(10,132,255,.3);opacity:.98;}
-    .btn-secondary{background:rgba(245,245,245,.08);color:#f5f5f7;box-shadow:none;border:.5px solid rgba(255,255,255,.12);}
-    .btn-ghost{background:transparent;color:#f5f5f7;box-shadow:none;border:.5px solid rgba(255,255,255,.18);}
-    .row{display:flex;gap:8px;}
-    .row>.btn{flex:1;}
-    .ui-label{font-size:12px;opacity:.75;margin:6px 0 4px;text-align:left;}
-    select,.ui-input{
-      width:100%;background:rgba(255,255,255,.03);
-      border-radius:999px;border:.5px solid rgba(255,255,255,.18);
-      padding:8px 14px;color:rgba(240,240,245,.95);font-size:14px;outline:none;
-      -webkit-appearance:none;appearance:none;
-    }
-    .ui-input::placeholder{color:rgba(255,255,255,.35);}
-    .ui-small{font-size:11px;opacity:.7;text-align:center;margin-top:6px;letter-spacing:.03em;text-transform:uppercase;}
-    .hidden{display:none!important;}
-
-    .section{
-      margin-top:10px;
-      background:rgba(15,15,24,.98);
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.08);
-      overflow:hidden;
-    }
-    .section-title{font-size:11px;opacity:.55;text-transform:uppercase;letter-spacing:.12em;margin:6px 2px 4px;}
-    .section-inner{display:flex;flex-direction:column;}
-    .list-item-btn{
-      border:none;background:transparent;color:#f5f5f7;
-      display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;
-      font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;
-      transition:transform .12s ease-out,background-color .12s ease-out,opacity .12s ease-out;
-    }
-    .list-item-btn + .list-item-btn{border-top:1px solid rgba(255,255,255,.08);}
-    .list-item-btn:active{transform:scale(.97);opacity:.95;background:rgba(255,255,255,.04);}
-    .list-icon{
-      width:26px;height:26px;border-radius:8px;
-      background:rgba(255,255,255,.08);
-      display:flex;align-items:center;justify-content:center;font-size:15px;
-    }
-    .list-label{flex:1;text-align:left;}
-    .list-meta{font-size:11px;opacity:.6;}
-    .list-chevron{font-size:15px;opacity:.4;}
-
-    #hud-bar{
-      position:absolute;top:6px;left:50%;transform:translateX(-50%);
-      background:rgba(0,0,0,.6);border-radius:999px;padding:3px 10px;
-      font-size:10px;display:flex;align-items:center;gap:8px;
-      pointer-events:none;border:.5px solid rgba(255,255,255,.1);backdrop-filter:blur(10px);
-    }
-    #hud-bar span{opacity:.8;}
-    #hud-combo{font-weight:700;}
-    #hud-risk{opacity:.85;}
-
-    #ultimate-btn{
-      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-      pointer-events:auto;border-radius:999px;padding:12px 28px;font-size:14px;font-weight:700;
-      border:none;background:linear-gradient(135deg,#00C853,#AEEA00);color:#02130a;
-      letter-spacing:.12em;text-transform:uppercase;
-      box-shadow:0 10px 24px rgba(0,200,83,.7);
-      -webkit-tap-highlight-color:transparent;
-    }
-    #ultimate-btn:active{transform:translate(-50%,-50%) scale(.96);}
-
-    #tutorial-hint{
-      position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
-      background:rgba(0,0,0,.7);border-radius:999px;padding:6px 16px;
-      font-size:11px;opacity:.9;pointer-events:none;
-      border:.5px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);text-align:center;
+    body {
+      height: 100vh;
+      background: radial-gradient(circle at top, #222 0, #050509 60%, #000 100%);
+      color: #f5f5f5;
+      direction: rtl;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
-    .missions-progress-bar{
-      width:100%;height:6px;border-radius:999px;
-      background:rgba(255,255,255,.06);overflow:hidden;margin:4px 0 2px;
-    }
-    .missions-progress-inner{
-      height:100%;border-radius:999px;
-      background:linear-gradient(90deg,#0A84FF,#34C759);
-      width:0%;
-      transition:width .3s ease-out;
+    .app {
+      width: 100vw;
+      max-width: 480px;
+      height: 100vh;
+      margin: 0 auto;
+      padding: 2.5vh 4vw;
+      display: flex;
+      flex-direction: column;
+      gap: 2vh;
     }
 
-    @keyframes tap-bounce{0%{transform:scale(1);}50%{transform:scale(.96);}100%{transform:scale(1);}}
-    .tapped{animation:tap-bounce .14s ease-out;}
+    /* Liquid Glass */
+    .glass {
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.17);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+    }
 
-    @media(max-width:480px){
-      .ui-panel{max-width:360px;padding:18px;}
-      .ui-app-title{font-size:20px;}
-      .ui-subtitle{font-size:12px;}
-      .btn{font-size:13px;padding:8px 14px;}
+    .header {
+      padding: 1.4vh 3vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 4.2vw;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 3vw;
+      opacity: .7;
+      margin-top: .4vh;
+    }
+
+    .score-block {
+      text-align: left;
+      font-size: 3.2vw;
+    }
+    .score-label {
+      font-size: 2.6vw;
+      opacity: .65;
+    }
+    .score-value {
+      font-size: 3.4vw;
+      font-weight: 600;
+    }
+
+    .sound-toggle {
+      min-width: auto;
+      padding: .4vh 1.8vw;
+      font-size: 3.4vw;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Game Area */
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 46vh;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #202633 0, #05070b 65%);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .line {
+      width: 86%;
+      height: 1.1vh;
+      background: #30343d;
+      border-radius: 999px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.7);
+      position: relative;
+    }
+
+    /* زون بزرگ‌تر: ۴۰٪ طول خط */
+    .zone {
+      position: absolute;
+      top: -0.8vh;
+      height: 2.8vh;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #35ffb4, #00cfff);
+      box-shadow: 0 0 14px rgba(22,255,204,0.9);
+      opacity: .95;
+    }
+
+    .ball {
+      width: 3.2vh;
+      height: 3.2vh;
+      position: absolute;
+      top: -1.6vh;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff8c1, #ffd600);
+      box-shadow: 0 0 12px rgba(255,214,0,0.9);
+      transform: translateX(-50%);
+    }
+
+    /* Menu overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,10,15,0.92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2vh 3vw;
+      z-index: 5;
+      gap: 1.2vh;
+    }
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-title {
+      font-size: 4.6vw;
+      font-weight: 600;
+    }
+    .overlay-score {
+      font-size: 3.4vw;
+      opacity: .8;
+    }
+    .overlay-hint {
+      font-size: 3vw;
+      opacity: .7;
+      line-height: 1.6;
+      margin-top: 1vh;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 2.5vw;
+      margin-top: 1.8vh;
+    }
+
+    .btn {
+      min-width: 26vw;
+      padding: 1.1vh 2.4vw;
+      border-radius: 14px;
+      font-size: 3.3vw;
+      font-weight: 600;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.30);
+      backdrop-filter: blur(16px);
+      transition: 0.1s;
+    }
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.15);
     }
   </style>
 </head>
 <body>
-<div id="wrapper">
-  <canvas id="game" width="1080" height="1920"></canvas>
 
-  <div id="hud-bar" class="hidden">
-    <span id="hud-rank">Rank: Bronze</span>
-    <span>·</span>
-    <span id="hud-difficulty">Mode: Normal</span>
-    <span>·</span>
-    <span id="hud-event">Event: None</span>
-    <span>·</span>
-    <span id="hud-combo">Combo x1</span>
-    <span>·</span>
-    <span id="hud-risk">Flow: x1.0</span>
-  </div>
-  <button id="ultimate-btn" class="hidden">READY</button>
-  <div id="tutorial-hint" class="hidden">
-    Drag up / down to dodge pillars. Tap the AI face when its ring turns green.
-  </div>
+<div class="app">
 
-  <!-- PLAYER NAME -->
-  <div id="ui-name" class="ui-layer">
-    <div class="ui-panel">
-      <div class="ui-app-header">
-        <div class="ui-app-icon" id="app-icon-name">1</div>
-        <div class="ui-app-title-block">
-          <div class="ui-app-title">Adan 1x1</div>
-          <div class="ui-app-subtitle">Minimal vertical arcade by @ashkanwaisi</div>
-        </div>
-      </div>
-      <div class="ui-subtitle">
-        Personalize your runs with a name. It will appear on your score card and when you share your best attempts.
-      </div>
-      <input id="player-name-input" class="ui-input" type="text" maxlength="18" placeholder="Your name" />
-      <div class="ui-buttons" style="margin-top:14px;">
-        <button class="btn" id="btn-name-start">
-          <span class="btn-icon">✔︎</span><span class="btn-label">Continue to Home</span>
-        </button>
-      </div>
-      <div class="section" style="margin-top:10px;">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-name-skip">
-            <div class="list-icon">›</div>
-            <div class="list-label">
-              Skip for now
-              <div class="list-meta">Use default name and change later</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-      <div class="ui-small" style="margin-top:10px;">
-        You can change this later from the main menu.
-      </div>
+  <div class="header glass">
+    <div>
+      <div class="title">Focus Zone</div>
+      <div class="subtitle">بازی تمرکز – یک انگشت</div>
     </div>
-  </div>
 
-  <!-- MAIN MENU -->
-  <div id="ui-main-menu" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-app-header">
-        <div class="ui-app-icon" id="app-level-badge">1</div>
-        <div class="ui-app-title-block">
-          <div class="ui-app-title">Adan 1x1</div>
-          <div class="ui-app-subtitle">
-            Portrait-only arcade · built for mobile
-          </div>
-        </div>
-      </div>
-      <button class="btn" id="btn-play" style="margin-bottom:10px;">
-        <span class="btn-icon">▶︎</span><span class="btn-label">Play</span>
-      </button>
-
-      <div class="section-title">Progress</div>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-missions">
-            <div class="list-icon">✓</div>
-            <div class="list-label">
-              Missions
-              <div class="list-meta">Daily & long-term goals</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-trophies">
-            <div class="list-icon">🏅</div>
-            <div class="list-label">
-              Trophies
-              <div class="list-meta">Milestones you’ve unlocked</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="section-title">Player</div>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-skins">
-            <div class="list-icon">▦</div>
-            <div class="list-label">
-              Skins
-              <div class="list-meta">Visual styles for your block</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-change-name">
-            <div class="list-icon">👤</div>
-            <div class="list-label">
-              Player name
-              <div class="list-meta">
-                <span id="menu-player-name">Guest</span>
-              </div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="section-title">System</div>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-settings">
-            <div class="list-icon">⚙︎</div>
-            <div class="list-label">
-              Settings
-              <div class="list-meta">Difficulty, graphics, vibration, SFX & music</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-tutorial">
-            <div class="list-icon">?</div>
-            <div class="list-label">
-              How to Play
-              <div class="list-meta">Controls and power-ups</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-credits">
-            <div class="list-icon">ⓘ</div>
-            <div class="list-label">
-              Credits
-              <div class="list-meta">Adan 1x1 · ashkan wisi</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="ui-small" style="margin-top:10px;text-align:left;">
-        Best: <span id="menu-best-score">0</span> ·
-        Level: <span id="menu-level">1</span> ·
-        Rank: <span id="menu-rank">Bronze</span><br>
-        Season: <span id="menu-season-tier">Neon 1</span><br>
-        Today: <span id="menu-daily-mod">Normal rotation</span>
-      </div>
+    <div>
+      <div class="score-label">امتیاز</div>
+      <div class="score-value" id="score">0.0</div>
+      <br>
+      <div class="score-label">بهترین</div>
+      <div class="score-value" id="best">0.0</div>
     </div>
+
+    <button id="soundBtn" class="sound-toggle">🔊</button>
   </div>
 
-  <!-- PAUSE -->
-  <div id="ui-pause" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Paused</span></div>
-      <div class="ui-subtitle">Game paused. Tap resume to continue.</div>
-      <div class="ui-buttons">
-        <button class="btn" id="btn-resume">
-          <span class="btn-icon">▶︎</span><span class="btn-label">Resume</span>
-        </button>
-        <button class="btn-secondary" id="btn-restart-from-pause">
-          <span class="btn-icon">↻</span><span class="btn-label">Restart</span>
-        </button>
-        <button class="btn-ghost" id="btn-home-from-pause">
-          <span class="btn-icon">⌂</span><span class="btn-label">Main Menu</span>
-        </button>
-      </div>
+  <div class="game-area" id="gameArea">
+    <div class="line" id="line">
+      <div class="zone" id="zone"></div>
+      <div class="ball" id="ball"></div>
     </div>
-  </div>
 
-  <!-- GAME OVER -->
-  <div id="ui-gameover" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Game Over</span></div>
-      <div class="ui-subtitle" id="go-subtitle">
-        You reached your limit this round.
-      </div>
-      <div style="text-align:center; margin-bottom:12px;">
-        <div style="font-size:18px; margin-bottom:4px; letter-spacing:.03em;">
-          Score: <span id="go-score">0</span>
-        </div>
-        <div style="font-size:14px; opacity:.8;">
-          Best: <span id="go-best">0</span> · Rank: <span id="go-rank">Bronze</span>
-        </div>
-        <div style="font-size:13px; opacity:.75; margin-top:4px;">
-          Level: <span id="go-level">1</span> · XP: <span id="go-xp">0</span>
-        </div>
-        <div style="font-size:12px;opacity:.75;margin-top:4px;">
-          Combo Max: <span id="go-combo-max">1</span> · Title: <span id="go-daily-title">None</span>
-        </div>
+    <div class="overlay" id="overlay">
+      <div class="overlay-title" id="overlayTitle">شروع بازی</div>
+      <div class="overlay-score" id="overlayScore"></div>
+      <div class="overlay-hint">
+        توپ روی خط حرکت می‌کند.  
+        با هر ضربه روی صفحه، مسیر توپ برعکس می‌شود.  
+        اگر توپ از زون خارج شود → می‌بازی.
       </div>
 
-      <div class="ui-buttons" style="margin-bottom:8px;">
-        <button class="btn" id="btn-retry">
-          <span class="btn-icon">↻</span><span class="btn-label">Play Again</span>
-        </button>
-      </div>
-
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-home">
-            <div class="list-icon">⌂</div>
-            <div class="list-label">
-              Main Menu
-              <div class="list-meta">Return to home screen</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-share-score">
-            <div class="list-icon">🔗</div>
-            <div class="list-label">
-              Share Score
-              <div class="list-meta">Post your Adan 1x1 score</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="ui-small">
-        Built for ashkan wisi · Adan 1x1
-      </div>
-    </div>
-  </div>
-
-  <!-- SKINS -->
-  <div id="ui-skins" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Skins</span></div>
-      <div class="ui-subtitle">
-        Unlock and select visual styles for your block.
-      </div>
-      <div id="skin-preview" style="display:flex;flex-direction:column;align-items:center;margin:10px 0 14px;">
-        <div id="skin-box" style="width:56px;height:56px;border-radius:14px;margin-bottom:8px;"></div>
-        <div id="skin-name" style="font-size:14px;opacity:.9;margin-bottom:4px;"></div>
-        <div id="skin-status" style="font-size:12px;opacity:.8;"></div>
-      </div>
-      <div class="ui-buttons" style="margin-bottom:8px;">
-        <button class="btn" id="btn-skin-apply">
-          <span class="btn-icon">✔︎</span><span class="btn-label">Use This Skin</span>
-        </button>
-      </div>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-skin-prev">
-            <div class="list-icon">‹</div>
-            <div class="list-label">
-              Previous skin
-              <div class="list-meta">See the previous style</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-skin-next">
-            <div class="list-icon">›</div>
-            <div class="list-label">
-              Next skin
-              <div class="list-meta">Browse the next style</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-skin-back">
-            <div class="list-icon">⌂</div>
-            <div class="list-label">
-              Back
-              <div class="list-meta">Return to main menu</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="ui-settings" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Settings</span></div>
-      <div class="ui-subtitle">
-        Adjust difficulty, graphics, vibration, SFX, music and your community tag.
-      </div>
-      <div class="ui-label">Difficulty</div>
-      <select id="sel-difficulty">
-        <option value="easy">Easy – wider gaps, slower</option>
-        <option value="normal" selected>Normal – balanced</option>
-        <option value="hard">Hard – tighter, faster</option>
-      </select>
-
-      <div class="ui-label">Graphics</div>
-      <select id="sel-graphics">
-        <option value="high" selected>High – glow & particles</option>
-        <option value="low">Low – simpler visuals</option>
-      </select>
-
-      <div class="ui-label">Vibration</div>
-      <select id="sel-vibration">
-        <option value="on" selected>On</option>
-        <option value="off">Off</option>
-      </select>
-
-      <div class="ui-label">SFX (Sound Effects)</div>
-      <select id="sel-sfx">
-        <option value="on" selected>On</option>
-        <option value="off">Off</option>
-      </select>
-
-      <div class="ui-label">Community Tag (optional)</div>
-      <input id="community-tag-input" class="ui-input" type="text" maxlength="20" placeholder="e.g. KURD-TEAM" />
-
-      <div class="ui-label">Background Music</div>
-      <input id="bgm-file-input" class="ui-input" type="file" accept="audio/*" />
-      <div class="ui-small" style="margin-top:4px;text-align:left;">
-        Select an audio file from your device. It will loop while Adan 1x1 is open.
-      </div>
-
-      <div class="ui-buttons" style="margin-top:12px;">
-        <button class="btn" id="btn-settings-ok">
-          <span class="btn-icon">✔︎</span><span class="btn-label">Done</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CREDITS -->
-  <div id="ui-credits" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Credits</span></div>
-      <div class="ui-subtitle">
-        Adan 1x1 – a minimal arcade experiment.
-      </div>
-      <div style="font-size:13px;opacity:.85;margin-bottom:14px;line-height:1.6;">
-        • Concept & creator: <b>@ashkanwaisi</b><br>
-        • Project label: <b>ashkan wisi</b><br>
-        • Designed for mobile – portrait only.
-      </div>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-credits-back">
-            <div class="list-icon">⌂</div>
-            <div class="list-label">
-              Back
-              <div class="list-meta">Return to main menu</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TUTORIAL -->
-  <div id="ui-tutorial" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>How to Play</span></div>
-      <div class="ui-subtitle">Mobile-only controls.</div>
-      <ul style="font-size:13px;opacity:.85;margin-bottom:14px;padding-left:18px;line-height:1.5;text-align:left;">
-        <li>Drag up / down on the screen to move your block.</li>
-        <li>Avoid the glowing white pillars.</li>
-        <li>Stay in the central Flow Zone to earn a score multiplier.</li>
-        <li>Collect glowing squares for temporary power-ups.</li>
-        <li>When the AI face ring turns green, tap it to dash and break pillars for a short time.</li>
-      </ul>
-      <div class="ui-buttons">
-        <button class="btn" id="btn-tutorial-ok">
-          <span class="btn-icon">✔︎</span><span class="btn-label">Got it</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MISSIONS -->
-  <div id="ui-missions" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Missions</span></div>
-      <div class="ui-subtitle">
-        Complete tasks, push your combos and keep your Flow Zone filled to earn XP.
-      </div>
-      <div class="ui-label">Season Neon Progress</div>
-      <div class="missions-progress-bar">
-        <div class="missions-progress-inner" id="missions-progress-inner"></div>
-      </div>
-      <div style="font-size:11px;opacity:.8;margin-bottom:10px;">
-        Tier: <span id="missions-season-tier">1</span> · <span id="missions-season-percent">0</span>%
-      </div>
-
-      <div id="missions-list" style="font-size:12px;max-height:200px;overflow:auto;margin-bottom:10px;"></div>
-
-      <div class="ui-buttons" style="margin-top:4px;">
-        <button class="btn" id="btn-missions-claim">
-          <span class="btn-icon">✔︎</span><span class="btn-label">Claim Rewards</span>
-        </button>
-      </div>
-
-      <div class="section" style="margin-top:10px;">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-missions-refresh">
-            <div class="list-icon">⟳</div>
-            <div class="list-label">
-              Refresh missions
-              <div class="list-meta">Get a new set of tasks</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-          <button class="list-item-btn" id="btn-missions-back">
-            <div class="list-icon">⌂</div>
-            <div class="list-label">
-              Back
-              <div class="list-meta">Return to main menu</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
-      </div>
-
-      <div class="ui-small">
-        Level: <span id="missions-level">1</span> · XP: <span id="missions-xp">0</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- TROPHIES -->
-  <div id="ui-trophies" class="ui-layer hidden">
-    <div class="ui-panel">
-      <div class="ui-title"><span>Trophies</span></div>
-      <div class="ui-subtitle">
-        Milestones you've reached in Adan 1x1.
-      </div>
-      <ul id="trophies-list" style="font-size:12px;opacity:.9;margin-bottom:14px;padding-left:16px;line-height:1.6;text-align:left;"></ul>
-      <div class="section">
-        <div class="section-inner">
-          <button class="list-item-btn" id="btn-trophies-back">
-            <div class="list-icon">⌂</div>
-            <div class="list-label">
-              Back
-              <div class="list-meta">Return to main menu</div>
-            </div>
-            <div class="list-chevron">›</div>
-          </button>
-        </div>
+      <div class="btn-row">
+        <button class="btn" id="startBtn">▶ شروع</button>
+        <button class="btn btn-secondary" id="restartBtn">⟳ ریست</button>
       </div>
     </div>
   </div>
 
 </div>
 
-<script>
-  const canvas=document.getElementById("game");
-  const ctx=canvas.getContext("2d");
-  const WIDTH=1080,HEIGHT=1920;
-  canvas.width=WIDTH;canvas.height=HEIGHT;
-
-  const NAME_KEY="1x1_player_name";
-  const BEST_KEY="1x1_best";
-  const XP_KEY="1x1_xp";
-  const LVL_KEY="1x1_lvl";
-  const TROPHY_KEY="1x1_trophies";
-  const SKIN_KEY="1x1_skin";
-  const VIBRATION_KEY="1x1_vibration";
-  const DAILY_TITLE_KEY="1x1_daily_title";
-  const COMMUNITY_KEY="1x1_community";
-  const STUDY_KEY="1x1_study_mode";
-  const SFX_KEY="1x1_sfx";
-
-  let playerName=localStorage.getItem(NAME_KEY)||"";
-  let bestScore=Number(localStorage.getItem(BEST_KEY)||0);
-  let xp=Number(localStorage.getItem(XP_KEY)||0);
-  let playerLevel=Number(localStorage.getItem(LVL_KEY)||1);
-  if(playerLevel<1)playerLevel=1;
-
-  let vibrationEnabledRaw=localStorage.getItem(VIBRATION_KEY);
-  let vibrationEnabled=vibrationEnabledRaw===null?true:(vibrationEnabledRaw==="1");
-
-  let sfxEnabledRaw=localStorage.getItem(SFX_KEY);
-  let sfxEnabled=sfxEnabledRaw===null?true:(sfxEnabledRaw==="1");
-
-  let trophies=JSON.parse(localStorage.getItem(TROPHY_KEY)||"{}");
-  let communityTag=localStorage.getItem(COMMUNITY_KEY)||"";
-  let studyMode=localStorage.getItem(STUDY_KEY)==="1";
-
-  let difficulty="normal",graphics="high";
-
-  function getDailyModifier(){
-    const day=(new Date()).toISOString().slice(0,10);
-    const hash=parseInt(day.replace(/-/g,"").slice(-4)||"0",10);
-    const idx=hash%3;
-    if(idx===0)return{code:"fastHyper",label:"Slightly faster Hyper events"};
-    if(idx===1)return{code:"calmMore",label:"More Calm Flow phases"};
-    return{code:"tightGaps",label:"Slightly tighter gaps"};
-  }
-  const dailyModifier=getDailyModifier();
-  const dailyGapOffset=dailyModifier.code==="tightGaps"?20:0;
-
-  const playerSkins=[
-    {name:"Repin Line",        color:"#4caf50",unlockLevel:1},
-    {name:"Structural Grid",   color:"#00e5ff",unlockLevel:3},
-    {name:"Neon Purple",       color:"#b388ff",unlockLevel:2},
-    {name:"Amber Heat",        color:"#ffb300",unlockLevel:4},
-    {name:"Neon White",        color:"#ffffff",unlockLevel:6},
-    {name:"Crimson Pulse",     color:"#ff5252",unlockLevel:2},
-    {name:"Void Blue",         color:"#2962ff",unlockLevel:3},
-    {name:"Electric Lime",     color:"#c6ff00",unlockLevel:5},
-    {name:"Deep Magenta",      color:"#f50057",unlockLevel:7},
-    {name:"Night Cyan",        color:"#00bcd4",unlockLevel:8}
-  ];
-  const savedSkinIndex=Number(localStorage.getItem(SKIN_KEY)||0);
-  const PLAYER_BASE_SIZE=70;
-
-  const player={
-    x:160,
-    y:HEIGHT/2-PLAYER_BASE_SIZE/2,
-    size:PLAYER_BASE_SIZE,
-    speed:16,
-    skinIndex:Math.min(savedSkinIndex,playerSkins.length-1),
-    hasShield:false,
-    isGhost:false,
-    scale:1
-  };
-
-  const OBSTACLE_WIDTH=80;
-  const BASE_GAP=320;
-  const obstacles=[],enemies=[],powerups=[],particles=[];
-  let gapSize=BASE_GAP;
-  let obstacleSpeed=14,obstacleSpeedMax=26;
-  let obstacleSpawnInterval=1050,lastObstacleSpawn=0;
-  let enemySpawnInterval=4200,lastEnemySpawn=0;
-  let powerupSpawnInterval=6000,lastPowerupSpawn=0;
-  const POWERUP_TYPES=["slow","shrink","shield","ghost"];
-
-  let ultimateCharge=0,ultimateChargeTime=15000;
-  let ultimateReady=false,ultimateActive=false,ultimateTimer=0,ultimateParticleTimer=0;
-  let score=0,lastTime=0,gameOver=false,isPlaying=false,isPaused=false;
-  let timeScale=1,slowMoTimer=0,closeSlowTimer=0,shrinkTimer=0,shieldTimer=0,ghostTimer=0;
-  let shakeTime=0,shakeDuration=260,shakeMagnitude=8;
-  let comboText="",comboTextTimer=0;
-  let level=1,aiMood="neutral",aiMoodTimer=0,aiSpeech="",aiSpeechTimer=0;
-  let lastScoreForShare=0,dashCount=0,closeCallCount=0,dashThisRun=0;
-  let currentEvent="none",eventTimer=0,eventCooldownTimer=0,flashAlpha=0;
-  let bgmAudio=null;
-  let survivalTimer=0;
-  let snakePassed=0;
-
-  let combo=1,comboTimer=0,comboMaxThisRun=1;
-  const COMBO_DECAY=2000;
-  let riskMultiplier=1;
-  const RISK_TARGET=1.3;
-  let riskTimer=0;
-  const riskZoneTop=HEIGHT*0.4;
-  const riskZoneBottom=HEIGHT*0.6;
-
-  const hudBar=document.getElementById("hud-bar");
-  const hudDiff=document.getElementById("hud-difficulty");
-  const hudRank=document.getElementById("hud-rank");
-  const hudEvent=document.getElementById("hud-event");
-  const hudCombo=document.getElementById("hud-combo");
-  const hudRisk=document.getElementById("hud-risk");
-  const ultimateBtn=document.getElementById("ultimate-btn");
-  const tutorialHint=document.getElementById("tutorial-hint");
-
-  function haptic(pattern){
-    if(!vibrationEnabled)return;
-    if(navigator.vibrate)navigator.vibrate(pattern);
-  }
-  function getDifficultyLabel(){return difficulty==="easy"?"Easy":difficulty==="hard"?"Hard":"Normal";}
-  function randomInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-  function clampPlayer(){
-    const size=player.size*player.scale;
-    if(player.y<0)player.y=0;
-    if(player.y+size>HEIGHT)player.y=HEIGHT-size;
-  }
-  function setAiMood(mood,dur=800){aiMood=mood;aiMoodTimer=dur;}
-  function setAiSpeech(text,dur=1200){aiSpeech=text;aiSpeechTimer=dur;}
-
-  function getRank(scoreVal){
-    if(scoreVal>=5000)return"Neon Master";
-    if(scoreVal>=3000)return"Crystal";
-    if(scoreVal>=1500)return"Gold";
-    if(scoreVal>=700)return"Silver";
-    return"Bronze";
-  }
-  function updateHudMeta(){
-    hudRank.textContent="Rank: "+getRank(bestScore);
-  }
-
-  function applyPerksFromLevel(){
-    perkScoreMult=1;
-    perkUltimateTimeMult=1;
-    perkUltimateChargeMult=1;
-    perkPowerupChanceMult=1;
-    if(playerLevel>=3)perkScoreMult+=0.05;
-    if(playerLevel>=5)perkUltimateChargeMult+=0.15;
-    if(playerLevel>=7)perkUltimateTimeMult+=0.2;
-    if(playerLevel>=9)perkScoreMult+=0.05;
-    if(playerLevel>=11)perkPowerupChanceMult+=0.2;
-  }
-
-  let perkScoreMult=1;
-  let perkUltimateTimeMult=1;
-  let perkUltimateChargeMult=1;
-  let perkPowerupChanceMult=1;
-
-  function addXP(amount){
-    xp+=amount;
-    if(xp<0)xp=0;
-    let leveledUp=false;
-    while(xp>=playerLevel*200){
-      xp-=playerLevel*200;
-      playerLevel++;
-      leveledUp=true;
-    }
-    localStorage.setItem(XP_KEY,String(xp));
-    localStorage.setItem(LVL_KEY,String(playerLevel));
-    if(leveledUp){
-      setAiMood("happy",1500);
-      setAiSpeech("Level "+playerLevel+" reached!",1500);
-      haptic([40,40,80]);
-      applyPerksFromLevel();
-      if(playerLevel>=3)unlockTrophy("level_3");
-      if(playerLevel>=5)unlockTrophy("level_5");
-      if(playerLevel>=10)unlockTrophy("level_10");
-    }
-  }
-
-  let missions=[];
-  function defaultMissions(){
-    return[
-      {id:"score_500",text:"Reach 500 score in one run",type:"scoreRun",target:500,progress:0,rewardXP:40,done:false,claimed:false,requires:[]},
-      {id:"score_1500",text:"Reach 1500 score in one run",type:"scoreRun",target:1500,progress:0,rewardXP:90,done:false,claimed:false,requires:["score_500"]},
-      {id:"score_3000",text:"Reach 3000 score in one run",type:"scoreRun",target:3000,progress:0,rewardXP:140,done:false,claimed:false,requires:["score_1500"]},
-      {id:"dash_5",text:"Use dash 5 times",type:"dashCount",target:5,progress:0,rewardXP:60,done:false,claimed:false,requires:[]},
-      {id:"dash_15",text:"Use dash 15 times",type:"dashCount",target:15,progress:0,rewardXP:110,done:false,claimed:false,requires:["dash_5"]},
-      {id:"close_5",text:"Trigger 5 close calls",type:"closeCount",target:5,progress:0,rewardXP:40,done:false,claimed:false,requires:[]},
-      {id:"close_20",text:"Trigger 20 close calls",type:"closeCount",target:20,progress:0,rewardXP:120,done:false,claimed:false,requires:["close_5"]},
-      {id:"flow_10",text:"Stay in Flow Zone for 10s total",type:"flowTime",target:10000,progress:0,rewardXP:80,done:false,claimed:false,requires:[]},
-      {id:"combo_10",text:"Reach Combo x10 in a run",type:"comboMax",target:10,progress:0,rewardXP:120,done:false,claimed:false,requires:["flow_10"]}
-    ];
-  }
-  function isMissionUnlocked(m){
-    if(!m.requires||m.requires.length===0)return true;
-    return m.requires.every(id=>{
-      const ref=missions.find(x=>x.id===id);
-      return ref&&ref.done;
-    });
-  }
-  function loadMissions(){
-    const s=localStorage.getItem("1x1_missions");
-    missions=s?JSON.parse(s):defaultMissions();
-  }
-  function saveMissions(){localStorage.setItem("1x1_missions",JSON.stringify(missions));}
-  function refreshMissions(){
-    missions=defaultMissions();dashCount=0;closeCallCount=0;
-    saveMissions();
-  }
-  function missionEvent(type,data){
-    missions.forEach(m=>{
-      if(m.done||!isMissionUnlocked(m))return;
-      if(m.type===type){
-        if(type==="scoreRun"||type==="flowTime"||type==="comboMax"){
-          if(data>m.progress)m.progress=Math.min(data,m.target);
-        }else{
-          m.progress=Math.min(m.progress+1,m.target);
-        }
-        if(m.progress>=m.target){
-          m.done=true;
-          setAiSpeech("Mission ready: "+m.text,1400);
-          haptic([60,40,60]);
-        }
-      }
-    });
-    saveMissions();
-  }
-  function claimMissionRewards(){
-    let total=0;
-    missions.forEach(m=>{
-      if(m.done&&!m.claimed){
-        total+=m.rewardXP;
-        m.claimed=true;
-      }
-    });
-    if(total>0){
-      addXP(total);
-      setAiSpeech("+"+total+" XP from missions!",1400);
-    }
-    saveMissions();
-  }
-
-  const TROPHY_DEFS=[
-    {id:"first_dash",text:"Used dash for the first time"},
-    {id:"score_1000",text:"Reached 1000 score"},
-    {id:"score_3000",text:"Reached 3000 score"},
-    {id:"score_5000",text:"Reached 5000 score"},
-    {id:"close_10",text:"Hit 10 close calls in total"},
-    {id:"level_3",text:"Reached player level 3"},
-    {id:"level_5",text:"Reached player level 5"},
-    {id:"level_10",text:"Reached player level 10"},
-    {id:"skin_5",text:"Unlocked 5 skins"},
-    {id:"flow_master",text:"Held Flow Zone multiplier for 15s in a run"},
-    {id:"snake_tunnel",text:"Survived multiple Snake Tunnel patterns"}
-  ];
-  function unlockTrophy(id){
-    if(!trophies[id]){
-      trophies[id]=true;
-      localStorage.setItem(TROPHY_KEY,JSON.stringify(trophies));
-      setAiSpeech("Trophy unlocked!",1000);
-      haptic([50,50,120]);
-    }
-  }
-
-  function updateTrophiesUI(){
-    const ul=document.getElementById("trophies-list");
-    ul.innerHTML="";
-    TROPHY_DEFS.forEach(t=>{
-      const li=document.createElement("li");
-      const has=trophies[t.id];
-      li.textContent=(has?"✅ ":"⬜ ")+t.text;
-      ul.appendChild(li);
-    });
-  }
-
-  function updateSeasonUI(){
-    const seasonTier=Math.floor(xp/1000)+1;
-    const seasonXP=xp%1000;
-    const percent=Math.floor((seasonXP/1000)*100);
-    const tierSpan=document.getElementById("menu-season-tier");
-    const perSpan=document.getElementById("missions-season-percent");
-    const inner=document.getElementById("missions-progress-inner");
-    const tierSpan2=document.getElementById("missions-season-tier");
-    if(inner)inner.style.width=percent+"%";
-    if(tierSpan)tierSpan.textContent="Neon "+seasonTier;
-    if(tierSpan2)tierSpan2.textContent=seasonTier;
-    if(perSpan)perSpan.textContent=percent;
-    const dailyEl=document.getElementById("menu-daily-mod");
-    if(dailyEl)dailyEl.textContent=dailyModifier.label;
-  }
-
-  function spawnObstacle(){
-    let style="normal",baseCenterY;
-    const patternRand=Math.random();
-    if(patternRand<0.25){
-      style="snake";baseCenterY=randomInt(HEIGHT*0.3,HEIGHT*0.7);
-    }else if(patternRand<0.5){
-      style="tunnel";baseCenterY=HEIGHT/2;
-    }else if(patternRand<0.75){
-      style="tightWave";baseCenterY=randomInt(HEIGHT*0.35,HEIGHT*0.65);
-    }else{
-      style="movingGap";baseCenterY=randomInt(200,HEIGHT-200);
-    }
-    obstacles.push({x:WIDTH+60,baseCenterY,centerY:baseCenterY,width:OBSTACLE_WIDTH,phase:Math.random()*Math.PI*2,style});
-  }
-  function spawnEnemy(){
-    const y=randomInt(140,HEIGHT-140);
-    enemies.push({x:WIDTH+80,y,radius:30,speedX:randomInt(14,20),wobblePhase:Math.random()*Math.PI*2});
-  }
-  function spawnPowerup(){
-    if(Math.random()>0.7*(1/perkPowerupChanceMult))return;
-    const type=POWERUP_TYPES[randomInt(0,POWERUP_TYPES.length-1)];
-    const y=randomInt(160,HEIGHT-160);
-    powerups.push({x:WIDTH+60,y,size:50,type});
-  }
-
-  function spawnParticles(x,y,color,amount=18,speed=5){
-    const maxParticles=graphics==="low"?40:120;
-    if(particles.length>maxParticles)return;
-    const actual=graphics==="low"?Math.floor(amount*.6):amount;
-    for(let i=0;i<actual;i++){
-      const ang=Math.random()*Math.PI*2;
-      const sp=speed*(.5+Math.random());
-      particles.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:600+Math.random()*400,maxLife:600+Math.random()*400,color});
-    }
-  }
-  function randomRainbowColor(){
-    const h=Math.random()*360;
-    return`hsl(${h},100%,60%)`;
-  }
-
-  function applyPowerup(type){
-    switch(type){
-      case"slow":
-        slowMoTimer=2500;setAiMood("happy");setAiSpeech("Slowing time...",1000);break;
-      case"shrink":
-        player.scale=.6;shrinkTimer=4000;setAiMood("happy");setAiSpeech("Smaller hitbox!",1000);break;
-      case"shield":
-        player.hasShield=true;shieldTimer=6000;setAiMood("happy");setAiSpeech("Shield up",1000);break;
-      case"ghost":
-        player.isGhost=true;ghostTimer=2200;setAiMood("happy");setAiSpeech("Ghost mode",1000);break;
-    }
-    haptic(40);
-  }
-
-  function initGameFromSettings(){
-    if(difficulty==="easy"){
-      gapSize=BASE_GAP+80;obstacleSpeed=11;obstacleSpawnInterval=1150;
-    }else if(difficulty==="hard"){
-      gapSize=BASE_GAP-60;obstacleSpeed=16;obstacleSpawnInterval=900;
-    }else{
-      gapSize=BASE_GAP;obstacleSpeed=14;obstacleSpawnInterval=1050;
-    }
-    hudDiff.textContent="Mode: "+getDifficultyLabel();
-    updateHudMeta();
-  }
-
-  function handleHit(cx,cy){
-    if(player.hasShield){
-      player.hasShield=false;shieldTimer=0;
-      setAiMood("scared",800);setAiSpeech("Shield broke!",700);
-      spawnParticles(cx,cy,"#ffeb3b",20,6);
-      shakeTime=shakeDuration*0.5;haptic([20,40,80]);
-      return;
-    }
-    gameOver=true;isPlaying=false;
-    const currentRunScore=score;
-    const previousBest=bestScore;
-    setAiMood("sad",1500);
-
-    if(currentRunScore>=previousBest){
-      setAiSpeech("New best: "+Math.floor(currentRunScore),1700);
-    }else{
-      const diff=Math.floor(previousBest-currentRunScore);
-      if(previousBest>0 && currentRunScore>=previousBest*0.8){
-        setAiSpeech("You were "+diff+" away from your best.",1800);
-      }else if(previousBest>0 && currentRunScore<previousBest*0.4){
-        setAiSpeech("We just started… try again.",1600);
-      }else{
-        setAiSpeech("Solid run. Keep going.",1500);
-      }
-    }
-
-    const skin=playerSkins[player.skinIndex];
-    spawnParticles(cx,cy,skin.color,30,7);
-    timeScale=1;shakeTime=200;ultimateBtn.classList.add("hidden");
-    flashAlpha=0.5;
-    lastScoreForShare=score;
-
-    if(score>=1000)unlockTrophy("score_1000");
-    if(score>=3000)unlockTrophy("score_3000");
-    if(score>=5000)unlockTrophy("score_5000");
-
-    missionEvent("comboMax",comboMaxThisRun);
-
-    const gainedXP=Math.floor(score*0.05*perkScoreMult);
-    addXP(gainedXP);
-
-    const today=(new Date()).toISOString().slice(0,10);
-    let dailyTitle="Runner";
-    if(score>=2000)dailyTitle="Corridor Surfer";
-    if(score>=3500)dailyTitle="Flow Master";
-    localStorage.setItem(DAILY_TITLE_KEY,JSON.stringify({date:today,title:dailyTitle}));
-
-    showLayer("ui-gameover");
-    document.getElementById("go-score").textContent=Math.floor(score);
-    document.getElementById("go-best").textContent=Math.floor(bestScore);
-    document.getElementById("go-level").textContent=playerLevel;
-    document.getElementById("go-xp").textContent=xp;
-    document.getElementById("go-rank").textContent=getRank(bestScore);
-    document.getElementById("go-combo-max").textContent=comboMaxThisRun;
-    const storedTitle=JSON.parse(localStorage.getItem(DAILY_TITLE_KEY)||"{}");
-    document.getElementById("go-daily-title").textContent=(storedTitle.date===today?storedTitle.title:"Runner");
-
-    const goSub=document.getElementById("go-subtitle");
-    if(previousBest>0 && currentRunScore<previousBest && currentRunScore>=previousBest*0.8){
-      const diff=Math.floor(previousBest-currentRunScore);
-      goSub.textContent="You were "+diff+" points away from your best. Try again now.";
-    }else{
-      goSub.textContent="You reached your limit this round.";
-    }
-
-    hudBar.classList.add("hidden");
-    tutorialHint.classList.add("hidden");
-    haptic([40,80,120]);
-  }
-
-  function resetGame(){
-    score=0;level=1;gameOver=false;isPaused=false;
-    obstacles.length=0;enemies.length=0;powerups.length=0;particles.length=0;
-    player.y=HEIGHT/2-player.size/2;player.scale=1;player.hasShield=false;player.isGhost=false;
-    slowMoTimer=0;closeSlowTimer=0;shrinkTimer=0;shieldTimer=0;ghostTimer=0;timeScale=1;
-    shakeTime=0;comboText="";comboTextTimer=0;aiMood="neutral";aiMoodTimer=0;aiSpeech="";aiSpeechTimer=0;
-    lastObstacleSpawn=0;lastEnemySpawn=0;lastPowerupSpawn=0;lastTime=0;
-    ultimateCharge=0;ultimateReady=false;ultimateActive=false;ultimateTimer=0;ultimateParticleTimer=0;
-    dashCount=0;dashThisRun=0;closeCallCount=0;
-    currentEvent="none";eventTimer=0;
-    eventCooldownTimer=dailyModifier.code==="fastHyper"?7000:10000;
-    flashAlpha=0;
-    combo=1;comboTimer=0;comboMaxThisRun=1;riskMultiplier=1;riskTimer=0;
-    survivalTimer=0;snakePassed=0;
-    ultimateBtn.classList.add("hidden");
-    initGameFromSettings();
-  }
-
-  function tryActivateUltimate(){
-    if(!ultimateReady||gameOver||!isPlaying||isPaused)return;
-    ultimateReady=false;ultimateActive=true;
-    ultimateTimer=(4500*perkUltimateTimeMult);
-    ultimateCharge=0;ultimateParticleTimer=0;
-    dashCount++;dashThisRun++;
-    setAiMood("happy",1500);
-    if(dashThisRun>=3){
-      setAiSpeech("Overdrive!",700);
-    }else if(dashThisRun===2){
-      setAiSpeech("Dash tier up",650);
-    }else{
-      setAiSpeech("Dash!",600);
-    }
-    flashAlpha=0.6;
-    missionEvent("dashCount");
-    unlockTrophy("first_dash");
-    haptic([30,30,90]);
-    ultimateBtn.classList.add("hidden");
-    const size=player.size*player.scale;
-    const cx=player.x+size/2,cy=player.y+size/2;
-    const particleCount=dashThisRun>=3?28:(dashThisRun===2?22:18);
-    const speed=dashThisRun>=3?8:7;
-    for(let i=0;i<5;i++)spawnParticles(cx,cy,randomRainbowColor(),particleCount,speed);
-  }
-
-  function startRandomEvent(){
-    let types;
-    if(dailyModifier.code==="fastHyper"){
-      types=["hyper","hyper","tight"];
-    }else if(dailyModifier.code==="calmMore"){
-      types=["calm","calm","tight"];
-    }else{
-      types=["hyper","calm","tight"];
-    }
-    const t=types[randomInt(0,types.length-1)];
-    currentEvent=t;eventTimer=8000;
-    let label="None";
-    if(t==="hyper"){label="Hyper Speed";setAiSpeech("Hyper phase!",900);}
-    if(t==="calm"){label="Calm Flow";setAiSpeech("Calm window",900);}
-    if(t==="tight"){label="Tight Gaps";setAiSpeech("Careful now…",900);}
-    hudEvent.textContent="Event: "+label;
-  }
-  function clearEvent(){currentEvent="none";eventTimer=0;hudEvent.textContent="Event: None";}
-
-  function drawBackgroundGrid(){
-    ctx.fillStyle="#000";ctx.fillRect(0,0,WIDTH,HEIGHT);
-    ctx.fillStyle="#111";
-    const cell=90;
-    for(let y=0;y<HEIGHT;y+=cell){
-      for(let x=0;x<WIDTH;x+=cell){
-        ctx.fillRect(x+1,y+1,cell-2,cell-2);
-      }
-    }
-    ctx.fillStyle="rgba(10,132,255,0.08)";
-    ctx.fillRect(0,riskZoneTop,WIDTH,riskZoneBottom-riskZoneTop);
-
-    if(studyMode){
-      ctx.strokeStyle="rgba(255,255,255,0.16)";
-      ctx.lineWidth=1;
-      ctx.beginPath();
-      ctx.moveTo(WIDTH*0.5,0);ctx.lineTo(WIDTH*0.5,HEIGHT);
-      ctx.moveTo(0,HEIGHT*0.3);ctx.lineTo(WIDTH,HEIGHT*0.7);
-      ctx.moveTo(0,HEIGHT*0.7);ctx.lineTo(WIDTH,HEIGHT*0.3);
-      ctx.stroke();
-      ctx.font="18px -apple-system,system-ui,sans-serif";
-      ctx.fillStyle="rgba(255,255,255,0.6)";
-      ctx.textAlign="left";ctx.textBaseline="bottom";
-      ctx.fillText("Study Mode",24,HEIGHT-40);
-    }
-  }
-
-  function drawAiFace(){
-    const x=WIDTH-160,y=200;
-    ctx.save();ctx.translate(x,y);
-    const cardW=200,cardH=160,radius=28;
-    if(graphics==="high"){ctx.shadowBlur=26;ctx.shadowColor="rgba(10,132,255,.45)";}
-    const grdCard=ctx.createLinearGradient(-cardW/2,-cardH/2,cardW/2,cardH/2);
-    grdCard.addColorStop(0,"#061323");grdCard.addColorStop(1,"#050910");
-    ctx.fillStyle=grdCard;
-    ctx.beginPath();ctx.roundRect(-cardW/2,-cardH/2,cardW,cardH,radius);ctx.fill();
-    ctx.shadowBlur=0;ctx.lineWidth=1.6;ctx.strokeStyle="rgba(255,255,255,.16)";
-    ctx.beginPath();ctx.roundRect(-cardW/2,-cardH/2,cardW,cardH,radius);ctx.stroke();
-    ctx.fillStyle="rgba(255,255,255,.08)";
-    ctx.fillRect(-cardW/2+18,cardH/2-14,cardW-36,4);
-
-    const rOuter=60;
-    const charge=ultimateActive?1:ultimateCharge;
-    ctx.lineWidth=4;ctx.strokeStyle="rgba(255,255,255,.16)";
-    ctx.beginPath();ctx.arc(0,-10,rOuter,0,Math.PI*2);ctx.stroke();
-    let progressColor="#0A84FF";
-    if(ultimateReady)progressColor="#00C853";
-    if(ultimateActive)progressColor="#00E676";
-    if(charge>0.01){
-      ctx.strokeStyle=progressColor;
-      ctx.beginPath();
-      ctx.arc(0,-10,rOuter,-Math.PI/2,-Math.PI/2+charge*Math.PI*2);
-      ctx.stroke();
-    }
-
-    const rInner=38;
-    const grdFace=ctx.createRadialGradient(0,-14,4,0,-10,rInner);
-    if(ultimateReady||ultimateActive){grdFace.addColorStop(0,"#0f3b1e");grdFace.addColorStop(1,"#021108");}
-    else{grdFace.addColorStop(0,"#102745");grdFace.addColorStop(1,"#020710");}
-    if(graphics==="high"){
-      ctx.shadowBlur=24;
-      ctx.shadowColor=ultimateReady||ultimateActive?"rgba(0,230,118,.9)":"rgba(10,132,255,.9)";
-    }
-    ctx.fillStyle=grdFace;
-    ctx.beginPath();ctx.arc(0,-10,rInner,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-
-    ctx.lineWidth=3;ctx.strokeStyle="rgba(255,255,255,.9)";ctx.lineCap="round";
-    ctx.beginPath();
-    if(aiMood==="scared"){
-      ctx.rect(-22,-22,9,16);ctx.rect(13,-22,9,16);
-    }else if(aiMood==="sad"){
-      ctx.moveTo(-24,-12);ctx.quadraticCurveTo(-12,-6,-2,-10);
-      ctx.moveTo(2,-10);ctx.quadraticCurveTo(12,-6,24,-12);
-    }else{
-      ctx.moveTo(-24,-15);ctx.quadraticCurveTo(-12,-18,-2,-15);
-      ctx.moveTo(2,-15);ctx.quadraticCurveTo(12,-18,24,-15);
-    }
-    ctx.stroke();
-
-    ctx.beginPath();
-    if(aiMood==="happy"||ultimateReady||ultimateActive){
-      ctx.moveTo(-18,0);ctx.quadraticCurveTo(0,10,18,0);
-    }else if(aiMood==="sad"){
-      ctx.moveTo(-18,4);ctx.quadraticCurveTo(0,-2,18,4);
-    }else if(aiMood==="scared"){
-      ctx.rect(-12,-1,24,10);
-    }else{
-      ctx.moveTo(-12,4);ctx.lineTo(12,4);
-    }
-    ctx.stroke();
-
-    ctx.beginPath();ctx.strokeStyle="rgba(255,255,255,.3)";ctx.lineWidth=1.4;
-    ctx.arc(-14,-30,5,0,Math.PI*2);ctx.stroke();
-
-    if(aiSpeech){
-      ctx.font="13px -apple-system,system-ui,sans-serif";
-      ctx.textAlign="center";ctx.textBaseline="top";
-      ctx.fillStyle="rgba(255,255,255,.9)";
-      ctx.fillText(aiSpeech,0,cardH/2+8);
-    }
-    ctx.restore();
-  }
-
-  function drawGameOverOverlay(){
-    ctx.save();
-    ctx.fillStyle="rgba(0,0,0,.97)";ctx.fillRect(0,0,WIDTH,HEIGHT);
-    ctx.fillStyle="#050505";
-    const cell=90;
-    for(let y=0;y<HEIGHT;y+=cell){
-      for(let x=0;x<WIDTH;x+=cell){
-        ctx.fillRect(x+2,y+2,cell-4,cell-4);
-      }
-    }
-    ctx.textAlign="center";ctx.textBaseline="middle";
-    ctx.font="64px -apple-system,system-ui,sans-serif";
-    ctx.fillStyle="#0A84FF";
-    ctx.fillText("GAME OVER",WIDTH/2,HEIGHT/2-20);
-    ctx.font="24px -apple-system,system-ui,sans-serif";
-    ctx.fillStyle="rgba(255,255,255,.7)";
-    ctx.fillText("Use Play Again or Main Menu",WIDTH/2,HEIGHT/2+30);
-    ctx.restore();
-  }
-
-  function draw(){
-    ctx.save();
-    if(shakeTime>0&&!isPaused&&!gameOver){
-      const factor=shakeTime/shakeDuration;
-      const dx=(Math.random()*2-1)*shakeMagnitude*factor;
-      const dy=(Math.random()*2-1)*shakeMagnitude*factor;
-      ctx.translate(dx,dy);
-    }
-    drawBackgroundGrid();
-
-    if(graphics==="high"){ctx.shadowBlur=28;ctx.shadowColor="rgba(255,255,255,.9)";}
-    ctx.fillStyle="#ffffff";
-    for(const o of obstacles){
-      const topHeight=o.centerY-gapSize/2;
-      const bottomY=o.centerY+gapSize/2;
-      const bottomHeight=HEIGHT-bottomY;
-      ctx.fillRect(o.x,0,o.width,topHeight);
-      ctx.fillRect(o.x,bottomY,o.width,bottomHeight);
-    }
-    ctx.shadowBlur=0;
-
-    for(const en of enemies){
-      if(graphics==="high"){ctx.shadowBlur=18;ctx.shadowColor="rgba(255,23,68,.9)";}
-      ctx.fillStyle="#ff1744";ctx.beginPath();ctx.arc(en.x,en.y,en.radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-    }
-
-    for(const p of powerups){
-      let col="#ffffff";
-      if(p.type==="slow")col="#00e5ff";
-      else if(p.type==="shrink")col="#ffeb3b";
-      else if(p.type==="shield")col="#69f0ae";
-      else if(p.type==="ghost")col="#b388ff";
-      if(graphics==="high"){ctx.shadowBlur=14;ctx.shadowColor=col;}
-      ctx.fillStyle=col;ctx.beginPath();ctx.roundRect(p.x,p.y,p.size,p.size,8);ctx.fill();
-      ctx.shadowBlur=0;
-      ctx.fillStyle="#000";ctx.font="22px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";
-      const label=p.type==="slow"?"S":p.type==="shrink"?"-":p.type==="shield"?"O":"G";
-      ctx.fillText(label,p.x+p.size/2,p.y+p.size/2);
-    }
-
-    for(const pa of particles){
-      const alpha=pa.life/pa.maxLife;
-      ctx.globalAlpha=alpha;ctx.fillStyle=pa.color;
-      ctx.beginPath();ctx.arc(pa.x,pa.y,4,0,Math.PI*2);ctx.fill();
-      ctx.globalAlpha=1;
-    }
-
-    const skin=playerSkins[player.skinIndex];
-    const size=player.size*player.scale;
-    if(graphics==="high"){
-      if(ultimateActive){ctx.shadowBlur=50;ctx.shadowColor="rgba(255,255,255,.95)";}
-      else{ctx.shadowBlur=26;ctx.shadowColor=skin.color;}
-    }
-    ctx.fillStyle=skin.color;ctx.fillRect(player.x,player.y,size,size);ctx.shadowBlur=0;
-
-    if(player.hasShield||player.isGhost){
-      ctx.lineWidth=4;
-      ctx.strokeStyle=player.hasShield?"#69f0ae":"#b388ff";
-      ctx.strokeRect(player.x-4,player.y-4,size+8,size+8);
-    }
-
-    ctx.fillStyle="#fff";ctx.textAlign="left";ctx.textBaseline="top";
-    ctx.font="26px -apple-system,system-ui,sans-serif";
-    const displayName=playerName||"Player";
-    ctx.fillText("Player: "+displayName,24,80);
-    ctx.fillText("Score: "+Math.floor(score),24,116);
-    ctx.fillText("Best: "+Math.floor(bestScore),24,152);
-    ctx.fillText("Level: "+playerLevel,24,188);
-    ctx.fillText("Rank: "+getRank(bestScore),24,224);
-    ctx.font="22px -apple-system,system-ui,sans-serif";
-    ctx.fillText("Mode: "+getDifficultyLabel(),24,260);
-    ctx.fillText("Skin: "+skin.name,24,292);
-
-    if(comboTextTimer>0){
-      ctx.font="36px -apple-system,system-ui,sans-serif";
-      ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillStyle="#ffeb3b";
-      ctx.fillText(comboText,WIDTH/2,150);
-    }
-
-    drawAiFace();
-    if(flashAlpha>0){
-      ctx.globalAlpha=flashAlpha;
-      ctx.fillStyle="#ffffff";ctx.fillRect(0,0,WIDTH,HEIGHT);
-      ctx.globalAlpha=1;
-    }
-    if(gameOver)drawGameOverOverlay();
-    ctx.restore();
-  }
-
-  function gameLoop(ts){
-    if(!lastTime)lastTime=ts;
-    const deltaRaw=ts-lastTime;lastTime=ts;
-    if(isPlaying&&!isPaused&&!gameOver)update(deltaRaw);
-    draw();
-    requestAnimationFrame(gameLoop);
-  }
-  requestAnimationFrame(gameLoop);
-
-  function update(deltaRaw){
-    if(slowMoTimer>0)timeScale=0.4;
-    else if(closeSlowTimer>0)timeScale=0.55;
-    else timeScale=1;
-
-    const delta=deltaRaw*timeScale;
-    const size=player.size*player.scale;
-    const centerY=player.y+size/2;
-
-    const inRisk=centerY>riskZoneTop&&centerY<riskZoneBottom;
-    if(inRisk){
-      riskTimer+=deltaRaw;
-      if(riskTimer>3000)riskMultiplier=RISK_TARGET;
-      missionEvent("flowTime",riskTimer);
-      if(riskTimer>15000)unlockTrophy("flow_master");
-    }else{
-      riskTimer=Math.max(0,riskTimer-deltaRaw*1.2);
-      if(riskTimer<1000)riskMultiplier=1;
-    }
-
-    const baseScoreGain=delta*0.035*riskMultiplier*perkScoreMult;
-    score+=baseScoreGain;
-    missionEvent("scoreRun",Math.floor(score));
-    comboTimer+=deltaRaw;
-    if(comboTimer>COMBO_DECAY&&combo>1){
-      combo=1;comboTimer=0;
-    }
-    hudCombo.textContent="Combo x"+combo;
-    hudRisk.textContent="Flow: x"+riskMultiplier.toFixed(1);
-
-    if(score>bestScore){
-      bestScore=score;
-      localStorage.setItem(BEST_KEY,String(bestScore));
-      document.getElementById("menu-best-score").textContent=Math.floor(bestScore);
-      updateHudMeta();
-    }
-
-    level=1+Math.floor(score/250);
-    let targetGap=BASE_GAP-Math.min(80,(level-1)*10)-dailyGapOffset;
-    if(riskMultiplier>1)targetGap-=40;
-    gapSize+=(targetGap-gapSize)*0.03;
-
-    obstacleSpeed+=delta*0.00012;
-    if(obstacleSpeed>obstacleSpeedMax)obstacleSpeed=obstacleSpeedMax;
-
-    if(slowMoTimer>0){slowMoTimer-=deltaRaw;if(slowMoTimer<=0){slowMoTimer=0;}}
-    if(closeSlowTimer>0){closeSlowTimer-=deltaRaw;if(closeSlowTimer<=0){closeSlowTimer=0;}}
-    if(shrinkTimer>0){shrinkTimer-=deltaRaw;if(shrinkTimer<=0){shrinkTimer=0;player.scale=1;}}
-    if(shieldTimer>0){shieldTimer-=deltaRaw;if(shieldTimer<=0){shieldTimer=0;player.hasShield=false;}}
-    if(ghostTimer>0){ghostTimer-=deltaRaw;if(ghostTimer<=0){ghostTimer=0;player.isGhost=false;}}
-    if(aiMoodTimer>0){aiMoodTimer-=deltaRaw;if(aiMoodTimer<=0){aiMoodTimer=0;aiMood="neutral";}}
-    if(aiSpeechTimer>0){aiSpeechTimer-=deltaRaw;if(aiSpeechTimer<=0){aiSpeechTimer=0;aiSpeech="";}}
-    if(comboTextTimer>0){comboTextTimer-=deltaRaw;if(comboTextTimer<0)comboTextTimer=0;}
-    if(shakeTime>0){shakeTime-=deltaRaw;if(shakeTime<0)shakeTime=0;}
-    if(flashAlpha>0){flashAlpha-=deltaRaw/400;if(flashAlpha<0)flashAlpha=0;}
-
-    if(!ultimateActive){
-      if(!ultimateReady){
-        ultimateCharge+=deltaRaw/(ultimateChargeTime/(perkUltimateChargeMult));
-        if(ultimateCharge>=1){
-          ultimateCharge=1;ultimateReady=true;
-          setAiMood("happy",1500);setAiSpeech("Dash ready",800);haptic(40);
-        }
-      }
-    }else{
-      ultimateTimer-=deltaRaw;
-      if(ultimateTimer<=0){
-        ultimateActive=false;ultimateCharge=0;ultimateTimer=0;ultimateParticleTimer=0;setAiMood("neutral",500);
-      }else{
-        ultimateParticleTimer+=deltaRaw;
-        const emitInterval=80;
-        const cx=player.x+size/2,cy=player.y+size/2;
-        while(ultimateParticleTimer>emitInterval){
-          ultimateParticleTimer-=emitInterval;
-          spawnParticles(cx,cy,randomRainbowColor(),10,6);
-        }
-      }
-    }
-
-    if(isPlaying&&!isPaused&&!gameOver&&ultimateReady&&!ultimateActive){
-      ultimateBtn.classList.remove("hidden");
-    }else ultimateBtn.classList.add("hidden");
-
-    if(!gameOver&&isPlaying){
-      if(eventTimer>0){
-        eventTimer-=deltaRaw;
-        if(eventTimer<=0)clearEvent();
-      }else{
-        if(eventCooldownTimer>0)eventCooldownTimer-=deltaRaw;
-        if(eventCooldownTimer<=0&&score>200){
-          startRandomEvent();
-          eventCooldownTimer=dailyModifier.code==="fastHyper"?7000:15000;
-        }
-      }
-    }
-
-    const px1=player.x,px2=player.x+size;
-    const py1=player.y,py2=player.y+size;
-    let nearMissThisFrame=false;
-
-    if(lastTime-lastObstacleSpawn>obstacleSpawnInterval){
-      spawnObstacle();lastObstacleSpawn=lastTime;
-    }
-    if(score>160&&lastTime-lastEnemySpawn>enemySpawnInterval){
-      spawnEnemy();lastEnemySpawn=lastTime;
-    }
-    if(score>140&&lastTime-lastPowerupSpawn>powerupSpawnInterval){
-      spawnPowerup();lastPowerupSpawn=lastTime;
-    }
-
-    const waveSpeed=0.005;
-    const baseAmp=55;
-    let eventSpeedMul=1;
-    if(currentEvent==="hyper")eventSpeedMul=1.4;
-    if(currentEvent==="calm")eventSpeedMul=0.7;
-    const obstacleMoveSpeed=(ultimateActive?obstacleSpeed*2.1:obstacleSpeed)*eventSpeedMul;
-
-    for(let i=obstacles.length-1;i>=0;i--){
-      const o=obstacles[i];
-      o.x-=obstacleMoveSpeed;
-      let amp=baseAmp;
-      if(o.style==="tightWave"||currentEvent==="tight")amp=30;
-      if(o.style==="snake")amp=70;
-      o.phase+=delta*waveSpeed;
-      if(o.style==="tunnel"){
-        o.centerY=HEIGHT/2+Math.sin(o.phase)*20;
-      }else{
-        o.centerY=o.baseCenterY+Math.sin(o.phase)*amp;
-      }
-      if(o.x+o.width<0){
-        if(o.style==="snake"){
-          snakePassed++;
-          if(snakePassed>=8)unlockTrophy("snake_tunnel");
-        }
-        obstacles.splice(i,1);
-        continue;
-      }
-
-      const topHeight=o.centerY-gapSize/2;
-      const bottomY=o.centerY+gapSize/2;
-      const bottomHeight=HEIGHT-bottomY;
-
-      const hitTop=px1<o.x+o.width&&px2>o.x&&py1<topHeight;
-      const hitBottom=px1<o.x+o.width&&px2>o.x&&py2>bottomY;
-
-      if(!player.isGhost&&!ultimateActive&&!hitTop&&!hitBottom&&px2>o.x&&px1<o.x+o.width){
-        const distTop=Math.abs(py1-topHeight);
-        const distBottom=Math.abs(py2-bottomY);
-        const minDist=Math.min(distTop,distBottom);
-        if(minDist<26)nearMissThisFrame=true;
-      }
-
-      if(hitTop||hitBottom){
-        if(ultimateActive){
-          const cx=o.x+o.width/2,cy=o.centerY;
-          spawnParticles(cx,cy,"#ffffff",24,8);
-          obstacles.splice(i,1);continue;
-        }else if(!player.isGhost){
-          handleHit(px1+size/2,py1+size/2);
-          break;
-        }
-      }
-    }
-
-    for(let i=enemies.length-1;i>=0;i--){
-      const en=enemies[i];
-      const enemySpeed=(ultimateActive?en.speedX*2.1:en.speedX)*eventSpeedMul;
-      en.x-=enemySpeed;
-      en.wobblePhase+=delta*0.006;
-      en.y+=Math.sin(en.wobblePhase)*1.1;
-      if(en.x+en.radius<0){enemies.splice(i,1);continue;}
-      const dx=(px1+px2)/2-en.x,dy=(py1+py2)/2-en.y;
-      const dist=Math.hypot(dx,dy);
-      if(!player.isGhost&&dist<en.radius+size/2){
-        handleHit(en.x,en.y);
-        break;
-      }
-    }
-
-    for(let i=powerups.length-1;i>=0;i--){
-      const p=powerups[i];
-      const ps=(ultimateActive?obstacleSpeed*2.1*0.9:obstacleSpeed*0.9)*eventSpeedMul;
-      p.x-=ps;
-      if(p.x+p.size<0){powerups.splice(i,1);continue;}
-      const cx=p.x+p.size/2,cy=p.y+p.size/2;
-      const centerX=(px1+px2)/2,centerY2=(py1+py2)/2;
-      const dist=Math.hypot(centerX-cx,centerY2-cy);
-      if(dist<p.size/2+size/2){
-        applyPowerup(p.type);
-        spawnParticles(cx,cy,"#ffffff",12,3);
-        powerups.splice(i,1);
-        combo++;comboTimer=0;if(combo>comboMaxThisRun)comboMaxThisRun=combo;
-        comboText="COMBO x"+combo;comboTextTimer=500;
-      }
-    }
-
-    for(let i=particles.length-1;i>=0;i--){
-      const pa=particles[i];
-      pa.life-=deltaRaw;
-      if(pa.life<=0){particles.splice(i,1);continue;}
-      pa.x+=pa.vx*(deltaRaw/16);
-      pa.y+=pa.vy*(deltaRaw/16);
-    }
-
-    if(nearMissThisFrame){
-      closeCallCount++;missionEvent("closeCount");
-      if(closeCallCount>=10)unlockTrophy("close_10");
-      combo++;comboTimer=0;if(combo>comboMaxThisRun)comboMaxThisRun=combo;
-      comboText="CLOSE! x"+combo;comboTextTimer=400;
-      setAiSpeech("Too close!",600);
-      haptic(20);
-      if(slowMoTimer<=0){closeSlowTimer=200;}
-    }
-
-    if(!gameOver){
-      survivalTimer+=deltaRaw;
-      if(survivalTimer>=5000){
-        survivalTimer=0;
-        combo++;comboTimer=0;if(combo>comboMaxThisRun)comboMaxThisRun=combo;
-        comboText="FLOW x"+combo;comboTextTimer=500;
-        if(combo%3===0){
-          ultimateCharge=Math.min(1,ultimateCharge+0.12);
-          addXP(8);
-          setAiSpeech("Flow bonus!",800);
-        }
-      }
-    }
-    addXP(deltaRaw*0.002);
-  }
-
-  let isDragging=false;
-  function getCanvasRect(){return canvas.getBoundingClientRect();}
-  function handleTouchMove(t){
-    const r=getCanvasRect(),y=t.clientY-r.top;
-    const scaleY=HEIGHT/r.height;
-    player.y=y*scaleY-(player.size*player.scale)/2;
-    clampPlayer();
-  }
-  function aiHitTest(clientX,clientY){
-    const r=getCanvasRect();
-    const cx=clientX-r.left,cy=clientY-r.top;
-    const sx=WIDTH/r.width,sy=HEIGHT/r.height;
-    const gx=cx*sx,gy=cy*sy;
-    const faceX=WIDTH-160,faceY=200;
-    const dist=Math.hypot(gx-faceX,gy-faceY);
-    return dist<=120;
-  }
-
-  canvas.addEventListener("touchstart",e=>{
-    e.preventDefault();
-    const t=e.touches[0];
-    if(aiHitTest(t.clientX,t.clientY)){tryActivateUltimate();return;}
-    if(!isPlaying||isPaused||gameOver)return;
-    isDragging=true;handleTouchMove(t);
-  },{passive:false});
-  canvas.addEventListener("touchmove",e=>{
-    e.preventDefault();
-    if(!isPlaying||isPaused||gameOver||!isDragging)return;
-    handleTouchMove(e.touches[0]);
-  },{passive:false});
-  canvas.addEventListener("touchend",e=>{e.preventDefault();isDragging=false;},{passive:false});
-  canvas.addEventListener("touchcancel",e=>{e.preventDefault();isDragging=false;},{passive:false});
-  canvas.addEventListener("click",e=>{if(aiHitTest(e.clientX,e.clientY))tryActivateUltimate();});
-
-  const nameInput=document.getElementById("player-name-input");
-  function showLayer(id){
-    const ids=["ui-name","ui-main-menu","ui-pause","ui-gameover","ui-skins","ui-settings","ui-credits","ui-tutorial","ui-missions","ui-trophies"];
-    ids.forEach(k=>{
-      const el=document.getElementById(k);
-      if(!el)return;
-      if(k===id)el.classList.remove("hidden");
-      else el.classList.add("hidden");
-    });
-  }
-
-  function updateLevelBadge(){
-    const badge=document.getElementById("app-level-badge");
-    if(badge)badge.textContent=playerLevel;
-  }
-
-  function startGame(){
-    resetGame();isPlaying=true;isPaused=false;gameOver=false;
-    showLayer("");hudBar.classList.remove("hidden");tutorialHint.classList.remove("hidden");
-    updateLevelBadge();
-  }
-  function goMainMenu(){
-    isPlaying=false;gameOver=false;isPaused=false;
-    showLayer("ui-main-menu");
-    hudBar.classList.add("hidden");tutorialHint.classList.add("hidden");ultimateBtn.classList.add("hidden");
-    document.getElementById("menu-player-name").textContent=playerName||"Guest";
-    document.getElementById("menu-best-score").textContent=Math.floor(bestScore);
-    document.getElementById("menu-level").textContent=playerLevel;
-    document.getElementById("menu-rank").textContent=getRank(bestScore);
-    updateLevelBadge();updateSeasonUI();
-  }
-
-  document.getElementById("btn-name-start").onclick=()=>{
-    const val=(nameInput.value||"").trim();
-    playerName=val||"Player";
-    localStorage.setItem(NAME_KEY,playerName);
-    goMainMenu();
-  };
-  document.getElementById("btn-name-skip").onclick=()=>{
-    if(!playerName)playerName="Player";
-    goMainMenu();
-  };
-  document.getElementById("btn-change-name").onclick=()=>{
-    showLayer("ui-name");
-    nameInput.value=playerName||"";nameInput.focus();
-  };
-
-  loadMissions();applyPerksFromLevel();updateHudMeta();updateSeasonUI();
-  if(playerName){goMainMenu();}else{showLayer("ui-name");nameInput.focus();}
-
-  document.getElementById("btn-play").onclick=()=>startGame();
-  document.getElementById("btn-tutorial").onclick=()=>showLayer("ui-tutorial");
-  document.getElementById("btn-tutorial-ok").onclick=()=>showLayer("ui-main-menu");
-  document.getElementById("btn-credits").onclick=()=>showLayer("ui-credits");
-  document.getElementById("btn-credits-back").onclick=()=>showLayer("ui-main-menu");
-
-  function updateMissionsUI(){
-    const list=document.getElementById("missions-list");
-    list.innerHTML="";
-    missions.forEach(m=>{
-      const unlocked=isMissionUnlocked(m);
-      const pct=Math.min(100,Math.floor((m.progress/m.target)*100));
-      const line=document.createElement("div");
-      line.style.marginBottom="6px";
-      const stateIcon=!unlocked?"🔒":(m.done?"✅":"•");
-      line.innerHTML=
-        `<div style="margin-bottom:2px;">${stateIcon} ${m.text}</div>
-         <div style="font-size:11px;opacity:.8;">
-           ${unlocked?`Progress: ${m.progress}/${m.target} (${pct}%)`:"Locked – finish previous node"}
-           · Reward: ${m.rewardXP} XP
-           ${m.claimed?"· <span style='color:#0f0;'>CLAIMED</span>":(m.done&&unlocked?"· <span style='color:#ffeb3b;'>READY</span>":"")}
-         </div>`;
-      list.appendChild(line);
-    });
-    document.getElementById("missions-level").textContent=playerLevel;
-    document.getElementById("missions-xp").textContent=xp;
-    updateSeasonUI();
-  }
-
-  document.getElementById("btn-missions").onclick=()=>{updateMissionsUI();showLayer("ui-missions");};
-  document.getElementById("btn-missions-back").onclick=()=>showLayer("ui-main-menu");
-  document.getElementById("btn-missions-refresh").onclick=()=>{refreshMissions();updateMissionsUI();};
-  document.getElementById("btn-missions-claim").onclick=()=>{claimMissionRewards();updateMissionsUI();};
-
-  document.getElementById("btn-trophies").onclick=()=>{updateTrophiesUI();showLayer("ui-trophies");};
-  document.getElementById("btn-trophies-back").onclick=()=>showLayer("ui-main-menu");
-
-  let previewSkinIndex=player.skinIndex;
-  function updateSkinPreview(){
-    const skin=playerSkins[previewSkinIndex];
-    const box=document.getElementById("skin-box");
-    const nameEl=document.getElementById("skin-name");
-    const status=document.getElementById("skin-status");
-    box.style.background=skin.color;
-    nameEl.textContent=skin.name;
-    if(playerLevel>=skin.unlockLevel){
-      status.textContent="Unlocked · requires level "+skin.unlockLevel;
-      status.style.color="#0f0";
-      document.getElementById("btn-skin-apply").disabled=false;
-      document.getElementById("btn-skin-apply").style.opacity="1";
-    }else{
-      status.textContent="Locked · reach level "+skin.unlockLevel;
-      status.style.color="#ffb300";
-      document.getElementById("btn-skin-apply").disabled=true;
-      document.getElementById("btn-skin-apply").style.opacity=".6";
-    }
-  }
-  function openSkinsUI(){previewSkinIndex=player.skinIndex;updateSkinPreview();showLayer("ui-skins");}
-  document.getElementById("btn-skins").onclick=openSkinsUI;
-  document.getElementById("btn-skin-prev").onclick=()=>{previewSkinIndex=(previewSkinIndex-1+playerSkins.length)%playerSkins.length;updateSkinPreview();};
-  document.getElementById("btn-skin-next").onclick=()=>{previewSkinIndex=(previewSkinIndex+1)%playerSkins.length;updateSkinPreview();};
-  document.getElementById("btn-skin-apply").onclick=()=>{
-    const skin=playerSkins[previewSkinIndex];
-    if(playerLevel<skin.unlockLevel)return;
-    player.skinIndex=previewSkinIndex;
-    localStorage.setItem(SKIN_KEY,String(player.skinIndex));
-    const unlockedCount=playerSkins.filter(s=>playerLevel>=s.unlockLevel).length;
-    if(unlockedCount>=5)unlockTrophy("skin_5");
-    setAiMood("happy",1000);setAiSpeech("Skin equipped",800);
-    showLayer("ui-main-menu");
-  };
-  document.getElementById("btn-skin-back").onclick=()=>showLayer("ui-main-menu");
-
-  document.getElementById("btn-settings").onclick=()=>{
-    document.getElementById("sel-difficulty").value=difficulty;
-    document.getElementById("sel-graphics").value=graphics;
-    document.getElementById("sel-vibration").value=vibrationEnabled?"on":"off";
-    document.getElementById("sel-sfx").value=sfxEnabled?"on":"off";
-    document.getElementById("community-tag-input").value=communityTag;
-    showLayer("ui-settings");
-  };
-  document.getElementById("btn-settings-ok").onclick=()=>{
-    difficulty=document.getElementById("sel-difficulty").value;
-    graphics=document.getElementById("sel-graphics").value;
-    const vibVal=document.getElementById("sel-vibration").value;
-    vibrationEnabled=(vibVal==="on");
-    localStorage.setItem(VIBRATION_KEY,vibrationEnabled?"1":"0");
-
-    const sfxVal=document.getElementById("sel-sfx").value;
-    sfxEnabled=(sfxVal==="on");
-    localStorage.setItem(SFX_KEY,sfxEnabled?"1":"0");
-
-    communityTag=(document.getElementById("community-tag-input").value||"").trim();
-    localStorage.setItem(COMMUNITY_KEY,communityTag);
-    initGameFromSettings();
-    showLayer("ui-main-menu");
-  };
-
-  const bgmInput=document.getElementById("bgm-file-input");
-  bgmInput.addEventListener("change",async e=>{
-    const file=e.target.files[0];if(!file)return;
-    try{
-      if(bgmAudio){bgmAudio.pause();URL.revokeObjectURL(bgmAudio.src);bgmAudio=null;}
-      const url=URL.createObjectURL(file);
-      const audio=new Audio(url);audio.loop=true;audio.volume=0.5;
-      bgmAudio=audio;
-      await audio.play().catch(()=>{});
-      setAiSpeech("Custom music loaded",1000);
-    }catch(err){
-      console.error(err);
-      alert("Could not play this file on this device.");
-    }
-  });
-
-  document.getElementById("btn-resume").onclick=()=>{isPaused=false;showLayer("");};
-  document.getElementById("btn-restart-from-pause").onclick=()=>startGame();
-  document.getElementById("btn-home-from-pause").onclick=()=>goMainMenu();
-
-  document.getElementById("btn-retry").onclick=()=>startGame();
-  document.getElementById("btn-home").onclick=()=>goMainMenu();
-
-  document.getElementById("btn-share-score").onclick=async()=>{
-    const scoreInt=Math.floor(lastScoreForShare||score||0);
-    const modeLabel=getDifficultyLabel();
-    const bestInt=Math.floor(bestScore||0);
-    const displayName=playerName||"Player";
-    const rank=getRank(bestScore);
-    const today=(new Date()).toISOString().slice(0,10);
-    const storedTitle=JSON.parse(localStorage.getItem(DAILY_TITLE_KEY)||"{}");
-    const dailyTitle=(storedTitle.date===today?storedTitle.title:"Runner");
-    const skin=playerSkins[player.skinIndex];
-    const eventLabel=currentEvent==="hyper"?"Hyper Speed":currentEvent==="calm"?"Calm Flow":currentEvent==="tight"?"Tight Gaps":"None";
-    const tagLine=communityTag?`\n👥 Community: ${communityTag}`:"";
-    const text=
-`⬛ Adan 1x1 – SCORE CARD ⬛
-
-👤 Player: ${displayName}
-⭐ Score: ${scoreInt}
-🏆 Best: ${bestInt}
-🎮 Mode: ${modeLabel}
-🎨 Skin: ${skin.name}
-💠 Rank: ${rank}
-🔥 Combo Max: ${comboMaxThisRun}
-🎖 Title of the day: ${dailyTitle}
-✨ Today’s modifier: ${dailyModifier.label}
-⚡ Last event: ${eventLabel}${tagLine}
-
-${displayName} just scored ${scoreInt} points in Adan 1x1 by @ashkanwaisi.
-Try to beat this run.`;
-
-    try{
-      if(navigator.share){await navigator.share({text});}
-      else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert("Score card copied. Paste it anywhere to share.");}
-      else{alert("Share not available. You can copy this text:\n\n"+text);}
-    }catch{}
-  };
-
-  ultimateBtn.onclick=()=>tryActivateUltimate();
-
-  function wireTapAnimation(){
-    const tappables=document.querySelectorAll(".btn,.list-item-btn");
-    tappables.forEach(el=>{
-      if(el.dataset.tapBound)return;
-      el.dataset.tapBound="1";
-      el.addEventListener("click",()=>{
-        if(el.id==="ultimate-btn")return;
-        el.classList.remove("tapped");void el.offsetWidth;
-        el.classList.add("tapped");setTimeout(()=>el.classList.remove("tapped"),160);
-      });
-    });
-  }
-  wireTapAnimation();
-
-  let studyTapCount=0,studyTapTimer=null;
-  const appBadge=document.getElementById("app-level-badge");
-  if(appBadge){
-    appBadge.addEventListener("click",()=>{
-      studyTapCount++;
-      if(studyTapTimer)clearTimeout(studyTapTimer);
-      studyTapTimer=setTimeout(()=>{studyTapCount=0;},600);
-      if(studyTapCount>=3){
-        studyTapCount=0;
-        studyMode=!studyMode;
-        localStorage.setItem(STUDY_KEY,studyMode?"1":"0");
-        setAiSpeech(studyMode?"Study mode ON":"Study mode OFF",1200);
-        haptic([30,40,60]);
-      }
-    });
-  }
-
-  /* ------------------- SFX SYSTEM ------------------- */
-
-  let sfxCtx=null;
-  function getSfxCtx(){
-    if(!sfxCtx){
-      const AC=window.AudioContext||window.webkitAudioContext;
-      if(!AC)return null;
-      sfxCtx=new AC();
-    }
-    return sfxCtx;
-  }
-
-  function playTone(freq,startDur,attack,release,vol,shape){
-    const ctx=getSfxCtx();
-    if(!ctx)return;
-    const now=ctx.currentTime;
-    const osc=ctx.createOscillator();
-    const gain=ctx.createGain();
-    osc.type=shape||"square";
-    osc.frequency.setValueAtTime(freq,now);
-    gain.gain.setValueAtTime(0,now);
-    gain.gain.linearRampToValueAtTime(vol,now+attack);
-    gain.gain.linearRampToValueAtTime(0,now+attack+release);
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now+attack+release+0.02);
-  }
-
-  function playSfx(type){
-    if(!sfxEnabled)return;
-    try{
-      if(type==="ui"){
-        playTone(880,0.08,0.001,0.07,0.2,"triangle");
-      }else if(type==="start"){
-        playTone(440,0.06,0.001,0.06,0.18,"triangle");
-        playTone(660,0.06,0.001,0.08,0.18,"square");
-      }else if(type==="hit"){
-        playTone(120,0.02,0.001,0.18,0.4,"square");
-      }else if(type==="dash"){
-        playTone(660,0.02,0.001,0.09,0.3,"sawtooth");
-        playTone(990,0.02,0.001,0.09,0.25,"sawtooth");
-      }else if(type==="powerup"){
-        playTone(520,0.02,0.001,0.08,0.25,"triangle");
-        playTone(780,0.02,0.001,0.1,0.22,"triangle");
-      }else if(type==="combo"){
-        playTone(740,0.02,0.001,0.07,0.24,"triangle");
-      }else if(type==="close"){
-        playTone(300,0.02,0.001,0.08,0.24,"sine");
-      }
-    }catch(e){}
-  }
-
-  (function attachSfxHooks(){
-    const origStartGame=startGame;
-    startGame=function(){
-      playSfx("start");
-      return origStartGame();
-    };
-
-    const origGoMainMenu=goMainMenu;
-    goMainMenu=function(){
-      playSfx("ui");
-      return origGoMainMenu();
-    };
-
-    const origApplyPowerup=applyPowerup;
-    applyPowerup=function(type){
-      playSfx("powerup");
-      return origApplyPowerup(type);
-    };
-
-    const origTryActivateUltimate=tryActivateUltimate;
-    tryActivateUltimate=function(){
-      const before=ultimateActive;
-      const r=origTryActivateUltimate();
-      if(!before && ultimateActive)playSfx("dash");
-      return r;
-    };
-
-    const origHandleHit=handleHit;
-    handleHit=function(cx,cy){
-      playSfx("hit");
-      return origHandleHit(cx,cy);
-    };
-
-    const origMissionEvent=missionEvent;
-    missionEvent=function(type,data){
-      if(type==="comboMax")playSfx("combo");
-      return origMissionEvent(type,data);
-    };
-
-    document.addEventListener("click",e=>{
-      const t=e.target;
-      if(!t)return;
-      if(t.classList && (t.classList.contains("btn")||t.classList.contains("list-item-btn"))){
-        playSfx("ui");
-      }
-    },true);
-
-    canvas.addEventListener("touchstart",()=>{
-      const ctx=getSfxCtx();
-      if(ctx&&ctx.state==="suspended")ctx.resume();
-    },{passive:true});
-    document.addEventListener("click",()=>{
-      const ctx=getSfxCtx();
-      if(ctx&&ctx.state==="suspended")ctx.resume();
-    },true);
-  })();
-
-</script>
-  <script type="module">
+<!-- 🔥 Firebase: ذخیره‌کردن score در Firestore -->
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getFirestore, collection, addDoc } 
+  import { getFirestore, collection, addDoc }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // 🔥 همین config خودت را اینجا قرار بده
+  // ⚠️ این همان config خودت است
   const firebaseConfig = {
     apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
     authDomain: "adan-f630c.firebaseapp.com",
@@ -1953,22 +259,255 @@ Try to beat this run.`;
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // 🔥 تابع ذخیره امتیاز (می‌فرسته به Firestore)
   async function saveScoreToFirebase(score) {
     try {
       await addDoc(collection(db, "scores"), {
         score: score,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ua: navigator.userAgent || null
       });
-      console.log("Saved:", score);
+      console.log("Score saved to Firebase:", score);
     } catch (err) {
-      console.error("Error saving score:", err);
+      console.error("Error saving score to Firebase:", err);
     }
   }
 
-  // برای اینکه فایل اصلی بازی بتواند این تابع را صدا بزند:
+  // تا اسکریپت بازی بتواند صدا بزند:
   window.saveScoreToFirebase = saveScoreToFirebase;
-  </script>
+</script>
+
+<!-- 🎮 اسکریپت اصلی بازی -->
+<script>
+  const line = document.getElementById("line");
+  const zone = document.getElementById("zone");
+  const ball = document.getElementById("ball");
+
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayScore = document.getElementById("overlayScore");
+  const startBtn = document.getElementById("startBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const soundBtn = document.getElementById("soundBtn");
+
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+  }
+
+  function playBeep(freq, dur, type = "sine", v = 0.15) {
+    if (!soundEnabled || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    g.gain.value = v;
+    const now = audioCtx.currentTime;
+    osc.start(now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.stop(now + dur);
+  }
+
+  let lineWidth;
+  let zoneWidth, zoneLeft, zoneRight;
+  let ballX = 0;
+  let ballSpeed = 0;
+  let zoneSpeed = 0;
+
+  let running = false;
+  let gameOver = false;
+  let startTime = null;
+  let lastTime = null;
+  let score = 0;
+  let bestScore = 0;
+
+  function setupGeometry() {
+    const rect = line.getBoundingClientRect();
+    lineWidth = rect.width;
+
+    // زون = ۴۰٪ طول خط
+    zoneWidth = lineWidth * 0.40;
+    zoneLeft = (lineWidth - zoneWidth) / 2;
+    zoneRight = zoneLeft + zoneWidth;
+
+    zone.style.width = zoneWidth + "px";
+    zone.style.left = zoneLeft + "px";
+
+    ballX = zoneLeft + zoneWidth / 2;
+    ball.style.left = ballX + "px";
+  }
+
+  function resetGame() {
+    setupGeometry();
+    running = false;
+    gameOver = false;
+    score = 0;
+    scoreEl.textContent = "0.0";
+    lastTime = null;
+    startTime = null;
+
+    ballSpeed = 2.8;
+    zoneSpeed = 0.9;
+  }
+
+  function startGame() {
+    resetGame();
+    running = true;
+    overlay.classList.add("hidden");
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    running = false;
+    gameOver = true;
+
+    // 🔥 ذخیره امتیاز در Firebase
+    if (window.saveScoreToFirebase) {
+      window.saveScoreToFirebase(score);
+    }
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestEl.textContent = bestScore.toFixed(1);
+      try {
+        localStorage.setItem("focusZoneBest_full", bestScore.toString());
+      } catch (e) {}
+    }
+
+    overlayTitle.textContent = "باختی!";
+    overlayScore.textContent =
+      "امتیاز: " + score.toFixed(1) + " • رکورد: " + bestScore.toFixed(1);
+    overlay.classList.remove("hidden");
+
+    ensureAudio();
+    playBeep(220, 0.25, "square", 0.2);
+  }
+
+  function loop(ts) {
+    if (!running) return;
+
+    if (!lastTime) {
+      lastTime = ts;
+      startTime = ts;
+      requestAnimationFrame(loop);
+      return;
+    }
+
+    const delta = (ts - lastTime) / 16.67;
+    lastTime = ts;
+
+    // حرکت توپ
+    ballX += ballSpeed * delta;
+    ball.style.left = ballX + "px";
+
+    // حرکت زون
+    zoneLeft += zoneSpeed * delta;
+    zoneRight = zoneLeft + zoneWidth;
+    if (zoneLeft < 0) {
+      zoneLeft = 0;
+      zoneSpeed = Math.abs(zoneSpeed);
+    } else if (zoneRight > lineWidth) {
+      zoneRight = lineWidth;
+      zoneLeft = zoneRight - zoneWidth;
+      zoneSpeed = -Math.abs(zoneSpeed);
+    }
+    zone.style.left = zoneLeft + "px";
+
+    // امتیاز
+    const elapsed = (ts - startTime) / 1000;
+    score = elapsed;
+    scoreEl.textContent = score.toFixed(1);
+
+    // سخت‌تر شدن
+    const base = 2.8, max = 4;
+    const f = Math.min(elapsed / 20, 1);
+    const newSpeed = base + max * f;
+    ballSpeed = ballSpeed < 0 ? -newSpeed : newSpeed;
+
+    const zoneBase = 0.9, zoneMax = 2;
+    const zNew = zoneBase + zoneMax * f;
+    zoneSpeed = zoneSpeed < 0 ? -zNew : zNew;
+
+    // خارج شدن توپ از زون
+    if (ballX < zoneLeft || ballX > zoneRight) {
+      endGame();
+      return;
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function handleTap() {
+    ensureAudio();
+    if (!running && !gameOver) {
+      startGame();
+      playBeep(520, 0.12);
+    } else if (!running && gameOver) {
+      startGame();
+    } else {
+      // در حین بازی: برعکس شدن جهت توپ
+      ballSpeed = -ballSpeed;
+      playBeep(650, 0.09);
+    }
+  }
+
+  document.addEventListener("touchstart", function (e) {
+    if (!e.target.closest(".btn")) {
+      e.preventDefault();
+      handleTap();
+    }
+  }, { passive: false });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".btn")) {
+      handleTap();
+    }
+  });
+
+  startBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    handleTap();
+  });
+
+  restartBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    resetGame();
+    overlayTitle.textContent = "شروع دوباره";
+    overlayScore.textContent = "";
+  });
+
+  soundBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    soundEnabled = !soundEnabled;
+    soundBtn.textContent = soundEnabled ? "🔊" : "🔈";
+    ensureAudio();
+    if (soundEnabled) playBeep(700, 0.07);
+  });
+
+  window.addEventListener("load", function () {
+    setupGeometry();
+    try {
+      const saved = localStorage.getItem("focusZoneBest_full");
+      if (saved) {
+        bestScore = parseFloat(saved);
+        bestEl.textContent = bestScore.toFixed(1);
+      }
+    } catch (e) {}
+  });
+
+  window.addEventListener("resize", function () {
+    setupGeometry();
+  });
+</script>
+
 </body>
 </html>
-
