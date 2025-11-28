@@ -39,7 +39,6 @@
       gap: 2vh;
     }
 
-    /* Liquid Glass */
     .glass {
       background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
       border-radius: 20px;
@@ -90,7 +89,6 @@
       backdrop-filter: blur(12px);
     }
 
-    /* Game Area */
     .game-area {
       position: relative;
       width: 100%;
@@ -113,7 +111,6 @@
       position: relative;
     }
 
-    /* زون بزرگ‌تر: ۴۰٪ طول خط */
     .zone {
       position: absolute;
       top: -0.8vh;
@@ -135,7 +132,6 @@
       transform: translateX(-50%);
     }
 
-    /* Menu overlay */
     .overlay {
       position: absolute;
       inset: 0;
@@ -165,7 +161,35 @@
       font-size: 3vw;
       opacity: .7;
       line-height: 1.6;
-      margin-top: 1vh;
+      margin-top: 0.5vh;
+    }
+
+    .player-form {
+      width: 100%;
+      max-width: 360px;
+      margin-top: 1.2vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8vh 1.4vw;
+    }
+
+    .player-form input {
+      width: 100%;
+      padding: 0.7vh 1vw;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(10,14,22,0.9);
+      color: #f5f5f5;
+      font-size: 2.6vw;
+      outline: none;
+    }
+    .player-form input::placeholder {
+      color: rgba(255,255,255,0.45);
+      font-size: 2.4vw;
+    }
+
+    .player-form .full-width {
+      grid-column: 1 / 3;
     }
 
     .btn-row {
@@ -230,6 +254,14 @@
         اگر توپ از زون خارج شود → می‌بازی.
       </div>
 
+      <!-- 🔥 فرم اطلاعات بازیکن -->
+      <div class="player-form">
+        <input id="playerName" class="full-width" type="text" placeholder="نام بازیکن">
+        <input id="teamName" type="text" placeholder="نام تیم (اختیاری)">
+        <input id="playerLevel" type="number" min="1" max="999" placeholder="Level">
+        <input id="playerSkin" class="full-width" type="text" placeholder="Skin / اسکین (مثلاً: neon, classic)">
+      </div>
+
       <div class="btn-row">
         <button class="btn" id="startBtn">▶ شروع</button>
         <button class="btn btn-secondary" id="restartBtn">⟳ ریست</button>
@@ -239,13 +271,13 @@
 
 </div>
 
-<!-- 🔥 Firebase: ذخیره‌کردن score در Firestore -->
+<!-- 🔥 Firebase: ذخیره‌کردن score + پروفایل در Firestore -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
   import { getFirestore, collection, addDoc }
     from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-  // ⚠️ این همان config خودت است
+  // ⚠️ config پروژه‌ی خودت
   const firebaseConfig = {
     apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
     authDomain: "adan-f630c.firebaseapp.com",
@@ -259,20 +291,31 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  async function saveScoreToFirebase(score) {
+  /**
+   * ذخیره امتیاز + پروفایل در Firestore
+   * meta شامل: playerName, teamName, level, skin, bestScore
+   */
+  async function saveScoreToFirebase(score, meta = {}) {
     try {
-      await addDoc(collection(db, "scores"), {
-        score: score,
+      const payload = {
+        score: Number(score),
+        bestScore: meta.bestScore != null ? Number(meta.bestScore) : null,
+        playerName: meta.playerName || null,
+        teamName: meta.teamName || null,
+        level: meta.level != null ? Number(meta.level) : null,
+        skin: meta.skin || null,
         createdAt: new Date().toISOString(),
         ua: navigator.userAgent || null
-      });
-      console.log("Score saved to Firebase:", score);
+      };
+
+      await addDoc(collection(db, "scores"), payload);
+      console.log("Score saved to Firebase:", payload);
     } catch (err) {
       console.error("Error saving score to Firebase:", err);
     }
   }
 
-  // تا اسکریپت بازی بتواند صدا بزند:
+  // در دسترس‌ گذاشتن برای اسکریپت اصلی
   window.saveScoreToFirebase = saveScoreToFirebase;
 </script>
 
@@ -287,10 +330,15 @@
   const overlayScore = document.getElementById("overlayScore");
   const startBtn = document.getElementById("startBtn");
   const restartBtn = document.getElementById("restartBtn");
-
   const scoreEl = document.getElementById("score");
   const bestEl = document.getElementById("best");
   const soundBtn = document.getElementById("soundBtn");
+
+  // 🔥 inputهای پروفایل
+  const playerNameInput = document.getElementById("playerName");
+  const teamNameInput = document.getElementById("teamName");
+  const playerLevelInput = document.getElementById("playerLevel");
+  const playerSkinInput = document.getElementById("playerSkin");
 
   let soundEnabled = true;
   let audioCtx = null;
@@ -334,11 +382,9 @@
     const rect = line.getBoundingClientRect();
     lineWidth = rect.width;
 
-    // زون = ۴۰٪ طول خط
-    zoneWidth = lineWidth * 0.40;
+    zoneWidth = lineWidth * 0.40; // ۴۰٪ طول خط
     zoneLeft = (lineWidth - zoneWidth) / 2;
     zoneRight = zoneLeft + zoneWidth;
-
     zone.style.width = zoneWidth + "px";
     zone.style.left = zoneLeft + "px";
 
@@ -370,11 +416,21 @@
     running = false;
     gameOver = true;
 
-    // 🔥 ذخیره امتیاز در Firebase
+    // 🔥 آماده کردن متای بازیکن
+    const meta = {
+      bestScore: bestScore,
+      playerName: playerNameInput.value.trim() || null,
+      teamName: teamNameInput.value.trim() || null,
+      level: playerLevelInput.value ? Number(playerLevelInput.value) : null,
+      skin: playerSkinInput.value.trim() || null
+    };
+
+    // 🔥 ذخیره در Firebase
     if (window.saveScoreToFirebase) {
-      window.saveScoreToFirebase(score);
+      window.saveScoreToFirebase(score, meta);
     }
 
+    // ذخیره bestScore در localStorage
     if (score > bestScore) {
       bestScore = score;
       bestEl.textContent = bestScore.toFixed(1);
@@ -409,7 +465,7 @@
     ballX += ballSpeed * delta;
     ball.style.left = ballX + "px";
 
-    // حرکت زون
+    // حرکت زون متحرک
     zoneLeft += zoneSpeed * delta;
     zoneRight = zoneLeft + zoneWidth;
     if (zoneLeft < 0) {
@@ -422,12 +478,12 @@
     }
     zone.style.left = zoneLeft + "px";
 
-    // امتیاز
+    // امتیاز بر اساس زمان
     const elapsed = (ts - startTime) / 1000;
     score = elapsed;
     scoreEl.textContent = score.toFixed(1);
 
-    // سخت‌تر شدن
+    // سخت‌تر شدن تدریجی
     const base = 2.8, max = 4;
     const f = Math.min(elapsed / 20, 1);
     const newSpeed = base + max * f;
@@ -437,7 +493,7 @@
     const zNew = zoneBase + zoneMax * f;
     zoneSpeed = zoneSpeed < 0 ? -zNew : zNew;
 
-    // خارج شدن توپ از زون
+    // اگر توپ از زون خارج شد → باخت
     if (ballX < zoneLeft || ballX > zoneRight) {
       endGame();
       return;
@@ -454,21 +510,20 @@
     } else if (!running && gameOver) {
       startGame();
     } else {
-      // در حین بازی: برعکس شدن جهت توپ
       ballSpeed = -ballSpeed;
       playBeep(650, 0.09);
     }
   }
 
   document.addEventListener("touchstart", function (e) {
-    if (!e.target.closest(".btn")) {
+    if (!e.target.closest(".btn") && !e.target.closest(".player-form input")) {
       e.preventDefault();
       handleTap();
     }
   }, { passive: false });
 
   document.addEventListener("click", function (e) {
-    if (!e.target.closest(".btn")) {
+    if (!e.target.closest(".btn") && !e.target.closest(".player-form input")) {
       handleTap();
     }
   });
@@ -493,8 +548,596 @@
     if (soundEnabled) playBeep(700, 0.07);
   });
 
+  // 🔥 ذخیره/لود پروفایل پلیر از localStorage
+  function loadPlayerProfile() {
+    try {
+      const raw = localStorage.getItem("focusZonePlayerProfile");
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.playerName) playerNameInput.value = data.playerName;
+      if (data.teamName) teamNameInput.value = data.teamName;
+      if (data.level != null) playerLevelInput.value = data.level;
+      if (data.skin) playerSkinInput.value = data.skin;
+    } catch (e) {
+      console.warn("Profile load error:", e);
+    }
+  }
+
+  function savePlayerProfile() {
+    const profile = {
+      playerName: playerNameInput.value.trim() || null,
+      teamName: teamNameInput.value.trim() || null,
+      level: playerLevelInput.value ? Number(playerLevelInput.value) : null,
+      skin: playerSkinInput.value.trim() || null
+    };
+    try {
+      localStorage.setItem("focusZonePlayerProfile", JSON.stringify(profile));
+    } catch (e) {
+      console.warn("Profile save error:", e);
+    }
+  }
+
+  [playerNameInput, teamNameInput, playerLevelInput, playerSkinInput].forEach(el => {
+    el.addEventListener("change", savePlayerProfile);
+    el.addEventListener("blur", savePlayerProfile);
+  });
+
   window.addEventListener("load", function () {
     setupGeometry();
+    loadPlayerProfile();
+    try {
+      const saved = localStorage.getItem("focusZoneBest_full");
+      if (saved) {
+        bestScore = parseFloat(saved);
+        bestEl.textContent = bestScore.toFixed(1);
+      }
+    } catch (e) {}
+  });
+
+  window.addEventListener("resize", function () {
+    setupGeometry();
+  });
+</script>
+
+</body>
+</html>
+    .header {
+      padding: 1.4vh 3vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 4.2vw;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 3vw;
+      opacity: .7;
+      margin-top: .4vh;
+    }
+
+    .score-block {
+      text-align: left;
+      font-size: 3.2vw;
+    }
+    .score-label {
+      font-size: 2.6vw;
+      opacity: .65;
+    }
+    .score-value {
+      font-size: 3.4vw;
+      font-weight: 600;
+    }
+
+    .sound-toggle {
+      min-width: auto;
+      padding: .4vh 1.8vw;
+      font-size: 3.4vw;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(12px);
+    }
+
+    .game-area {
+      position: relative;
+      width: 100%;
+      height: 46vh;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #202633 0, #05070b 65%);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .line {
+      width: 86%;
+      height: 1.1vh;
+      background: #30343d;
+      border-radius: 999px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.7);
+      position: relative;
+    }
+
+    .zone {
+      position: absolute;
+      top: -0.8vh;
+      height: 2.8vh;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #35ffb4, #00cfff);
+      box-shadow: 0 0 14px rgba(22,255,204,0.9);
+      opacity: .95;
+    }
+
+    .ball {
+      width: 3.2vh;
+      height: 3.2vh;
+      position: absolute;
+      top: -1.6vh;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff8c1, #ffd600);
+      box-shadow: 0 0 12px rgba(255,214,0,0.9);
+      transform: translateX(-50%);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,10,15,0.92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2vh 3vw;
+      z-index: 5;
+      gap: 1.2vh;
+    }
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-title {
+      font-size: 4.6vw;
+      font-weight: 600;
+    }
+    .overlay-score {
+      font-size: 3.4vw;
+      opacity: .8;
+    }
+    .overlay-hint {
+      font-size: 3vw;
+      opacity: .7;
+      line-height: 1.6;
+      margin-top: 0.5vh;
+    }
+
+    .player-form {
+      width: 100%;
+      max-width: 360px;
+      margin-top: 1.2vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8vh 1.4vw;
+    }
+
+    .player-form input {
+      width: 100%;
+      padding: 0.7vh 1vw;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(10,14,22,0.9);
+      color: #f5f5f5;
+      font-size: 2.6vw;
+      outline: none;
+    }
+    .player-form input::placeholder {
+      color: rgba(255,255,255,0.45);
+      font-size: 2.4vw;
+    }
+
+    .player-form .full-width {
+      grid-column: 1 / 3;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 2.5vw;
+      margin-top: 1.8vh;
+    }
+
+    .btn {
+      min-width: 26vw;
+      padding: 1.1vh 2.4vw;
+      border-radius: 14px;
+      font-size: 3.3vw;
+      font-weight: 600;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.30);
+      backdrop-filter: blur(16px);
+      transition: 0.1s;
+    }
+    .btn:active {
+      transform: scale(.97);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.15);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="header glass">
+    <div>
+      <div class="title">Focus Zone</div>
+      <div class="subtitle">بازی تمرکز – یک انگشت</div>
+    </div>
+
+    <div>
+      <div class="score-label">امتیاز</div>
+      <div class="score-value" id="score">0.0</div>
+      <br>
+      <div class="score-label">بهترین</div>
+      <div class="score-value" id="best">0.0</div>
+    </div>
+
+    <button id="soundBtn" class="sound-toggle">🔊</button>
+  </div>
+
+  <div class="game-area" id="gameArea">
+    <div class="line" id="line">
+      <div class="zone" id="zone"></div>
+      <div class="ball" id="ball"></div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-title" id="overlayTitle">شروع بازی</div>
+      <div class="overlay-score" id="overlayScore"></div>
+      <div class="overlay-hint">
+        توپ روی خط حرکت می‌کند.  
+        با هر ضربه روی صفحه، مسیر توپ برعکس می‌شود.  
+        اگر توپ از زون خارج شود → می‌بازی.
+      </div>
+
+      <!-- 🔥 فرم اطلاعات بازیکن -->
+      <div class="player-form">
+        <input id="playerName" class="full-width" type="text" placeholder="نام بازیکن">
+        <input id="teamName" type="text" placeholder="نام تیم (اختیاری)">
+        <input id="playerLevel" type="number" min="1" max="999" placeholder="Level">
+        <input id="playerSkin" class="full-width" type="text" placeholder="Skin / اسکین (مثلاً: neon, classic)">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="startBtn">▶ شروع</button>
+        <button class="btn btn-secondary" id="restartBtn">⟳ ریست</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 🔥 Firebase: ذخیره‌کردن score + پروفایل در Firestore -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // ⚠️ config پروژه‌ی خودت
+  const firebaseConfig = {
+    apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
+    authDomain: "adan-f630c.firebaseapp.com",
+    projectId: "adan-f630c",
+    storageBucket: "adan-f630c.firebasestorage.app",
+    messagingSenderId: "116112699236",
+    appId: "1:116112699236:web:a4fbe09161bf2e781b9471",
+    measurementId: "G-Q6MZBGZERG"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  /**
+   * ذخیره امتیاز + پروفایل در Firestore
+   * meta شامل: playerName, teamName, level, skin, bestScore
+   */
+  async function saveScoreToFirebase(score, meta = {}) {
+    try {
+      const payload = {
+        score: Number(score),
+        bestScore: meta.bestScore != null ? Number(meta.bestScore) : null,
+        playerName: meta.playerName || null,
+        teamName: meta.teamName || null,
+        level: meta.level != null ? Number(meta.level) : null,
+        skin: meta.skin || null,
+        createdAt: new Date().toISOString(),
+        ua: navigator.userAgent || null
+      };
+
+      await addDoc(collection(db, "scores"), payload);
+      console.log("Score saved to Firebase:", payload);
+    } catch (err) {
+      console.error("Error saving score to Firebase:", err);
+    }
+  }
+
+  // در دسترس‌ گذاشتن برای اسکریپت اصلی
+  window.saveScoreToFirebase = saveScoreToFirebase;
+</script>
+
+<!-- 🎮 اسکریپت اصلی بازی -->
+<script>
+  const line = document.getElementById("line");
+  const zone = document.getElementById("zone");
+  const ball = document.getElementById("ball");
+
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayScore = document.getElementById("overlayScore");
+  const startBtn = document.getElementById("startBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const soundBtn = document.getElementById("soundBtn");
+
+  // 🔥 inputهای پروفایل
+  const playerNameInput = document.getElementById("playerName");
+  const teamNameInput = document.getElementById("teamName");
+  const playerLevelInput = document.getElementById("playerLevel");
+  const playerSkinInput = document.getElementById("playerSkin");
+
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+  }
+
+  function playBeep(freq, dur, type = "sine", v = 0.15) {
+    if (!soundEnabled || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    g.gain.value = v;
+    const now = audioCtx.currentTime;
+    osc.start(now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.stop(now + dur);
+  }
+
+  let lineWidth;
+  let zoneWidth, zoneLeft, zoneRight;
+  let ballX = 0;
+  let ballSpeed = 0;
+  let zoneSpeed = 0;
+
+  let running = false;
+  let gameOver = false;
+  let startTime = null;
+  let lastTime = null;
+  let score = 0;
+  let bestScore = 0;
+
+  function setupGeometry() {
+    const rect = line.getBoundingClientRect();
+    lineWidth = rect.width;
+
+    zoneWidth = lineWidth * 0.40; // ۴۰٪ طول خط
+    zoneLeft = (lineWidth - zoneWidth) / 2;
+    zoneRight = zoneLeft + zoneWidth;
+    zone.style.width = zoneWidth + "px";
+    zone.style.left = zoneLeft + "px";
+
+    ballX = zoneLeft + zoneWidth / 2;
+    ball.style.left = ballX + "px";
+  }
+
+  function resetGame() {
+    setupGeometry();
+    running = false;
+    gameOver = false;
+    score = 0;
+    scoreEl.textContent = "0.0";
+    lastTime = null;
+    startTime = null;
+
+    ballSpeed = 2.8;
+    zoneSpeed = 0.9;
+  }
+
+  function startGame() {
+    resetGame();
+    running = true;
+    overlay.classList.add("hidden");
+    requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    running = false;
+    gameOver = true;
+
+    // 🔥 آماده کردن متای بازیکن
+    const meta = {
+      bestScore: bestScore,
+      playerName: playerNameInput.value.trim() || null,
+      teamName: teamNameInput.value.trim() || null,
+      level: playerLevelInput.value ? Number(playerLevelInput.value) : null,
+      skin: playerSkinInput.value.trim() || null
+    };
+
+    // 🔥 ذخیره در Firebase
+    if (window.saveScoreToFirebase) {
+      window.saveScoreToFirebase(score, meta);
+    }
+
+    // ذخیره bestScore در localStorage
+    if (score > bestScore) {
+      bestScore = score;
+      bestEl.textContent = bestScore.toFixed(1);
+      try {
+        localStorage.setItem("focusZoneBest_full", bestScore.toString());
+      } catch (e) {}
+    }
+
+    overlayTitle.textContent = "باختی!";
+    overlayScore.textContent =
+      "امتیاز: " + score.toFixed(1) + " • رکورد: " + bestScore.toFixed(1);
+    overlay.classList.remove("hidden");
+
+    ensureAudio();
+    playBeep(220, 0.25, "square", 0.2);
+  }
+
+  function loop(ts) {
+    if (!running) return;
+
+    if (!lastTime) {
+      lastTime = ts;
+      startTime = ts;
+      requestAnimationFrame(loop);
+      return;
+    }
+
+    const delta = (ts - lastTime) / 16.67;
+    lastTime = ts;
+
+    // حرکت توپ
+    ballX += ballSpeed * delta;
+    ball.style.left = ballX + "px";
+
+    // حرکت زون متحرک
+    zoneLeft += zoneSpeed * delta;
+    zoneRight = zoneLeft + zoneWidth;
+    if (zoneLeft < 0) {
+      zoneLeft = 0;
+      zoneSpeed = Math.abs(zoneSpeed);
+    } else if (zoneRight > lineWidth) {
+      zoneRight = lineWidth;
+      zoneLeft = zoneRight - zoneWidth;
+      zoneSpeed = -Math.abs(zoneSpeed);
+    }
+    zone.style.left = zoneLeft + "px";
+
+    // امتیاز بر اساس زمان
+    const elapsed = (ts - startTime) / 1000;
+    score = elapsed;
+    scoreEl.textContent = score.toFixed(1);
+
+    // سخت‌تر شدن تدریجی
+    const base = 2.8, max = 4;
+    const f = Math.min(elapsed / 20, 1);
+    const newSpeed = base + max * f;
+    ballSpeed = ballSpeed < 0 ? -newSpeed : newSpeed;
+
+    const zoneBase = 0.9, zoneMax = 2;
+    const zNew = zoneBase + zoneMax * f;
+    zoneSpeed = zoneSpeed < 0 ? -zNew : zNew;
+
+    // اگر توپ از زون خارج شد → باخت
+    if (ballX < zoneLeft || ballX > zoneRight) {
+      endGame();
+      return;
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  function handleTap() {
+    ensureAudio();
+    if (!running && !gameOver) {
+      startGame();
+      playBeep(520, 0.12);
+    } else if (!running && gameOver) {
+      startGame();
+    } else {
+      ballSpeed = -ballSpeed;
+      playBeep(650, 0.09);
+    }
+  }
+
+  document.addEventListener("touchstart", function (e) {
+    if (!e.target.closest(".btn") && !e.target.closest(".player-form input")) {
+      e.preventDefault();
+      handleTap();
+    }
+  }, { passive: false });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".btn") && !e.target.closest(".player-form input")) {
+      handleTap();
+    }
+  });
+
+  startBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    handleTap();
+  });
+
+  restartBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    resetGame();
+    overlayTitle.textContent = "شروع دوباره";
+    overlayScore.textContent = "";
+  });
+
+  soundBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    soundEnabled = !soundEnabled;
+    soundBtn.textContent = soundEnabled ? "🔊" : "🔈";
+    ensureAudio();
+    if (soundEnabled) playBeep(700, 0.07);
+  });
+
+  // 🔥 ذخیره/لود پروفایل پلیر از localStorage
+  function loadPlayerProfile() {
+    try {
+      const raw = localStorage.getItem("focusZonePlayerProfile");
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data.playerName) playerNameInput.value = data.playerName;
+      if (data.teamName) teamNameInput.value = data.teamName;
+      if (data.level != null) playerLevelInput.value = data.level;
+      if (data.skin) playerSkinInput.value = data.skin;
+    } catch (e) {
+      console.warn("Profile load error:", e);
+    }
+  }
+
+  function savePlayerProfile() {
+    const profile = {
+      playerName: playerNameInput.value.trim() || null,
+      teamName: teamNameInput.value.trim() || null,
+      level: playerLevelInput.value ? Number(playerLevelInput.value) : null,
+      skin: playerSkinInput.value.trim() || null
+    };
+    try {
+      localStorage.setItem("focusZonePlayerProfile", JSON.stringify(profile));
+    } catch (e) {
+      console.warn("Profile save error:", e);
+    }
+  }
+
+  [playerNameInput, teamNameInput, playerLevelInput, playerSkinInput].forEach(el => {
+    el.addEventListener("change", savePlayerProfile);
+    el.addEventListener("blur", savePlayerProfile);
+  });
+
+  window.addEventListener("load", function () {
+    setupGeometry();
+    loadPlayerProfile();
     try {
       const saved = localStorage.getItem("focusZoneBest_full");
       if (saved) {
