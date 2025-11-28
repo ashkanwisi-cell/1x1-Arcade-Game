@@ -1932,33 +1932,36 @@ Try to beat this run.`;
       if(ctx&&ctx.state==="suspended")ctx.resume();
     },true);
   })();
+<script type=”module”>
+  import { initializeApp } from “https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js”;
+  import { getFirestore, collection, addDoc }
+    from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
 
-</script>
-
-<!-- Firebase (Analytics) – kept separate, does not modify game logic -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
-    apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
-    authDomain: "adan-f630c.firebaseapp.com",
-    projectId: "adan-f630c",
-    storageBucket: "adan-f630c.firebasestorage.app",
-    messagingSenderId: "116112699236",
-    appId: "1:116112699236:web:a4fbe09161bf2e781b9471",
-    measurementId: "G-Q6MZBGZERG"
+    apiKey: “...”,
+    authDomain: “...”,
+    projectId: “...”,
+    storageBucket: “...”,
+    messagingSenderId: “...”,
+    appId: “...”,
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
 
-  // در آینده اگر خواستی Score یا چیزهای دیگه رو بفرستی،
-  // اینجا می‌تونی Firestore یا Realtime Database رو هم import و استفاده کنی.
+  async function saveScoreToFirebase(score) {
+    try {
+      await addDoc(collection(db, “scores”), {
+        score: score,
+        createdAt: new Date().toISOString()
+      });
+      console.log(”Saved:”, score);
+    } catch (err) {
+      console.error(”Error saving score:”, err);
+    }
+  }
+
+  window.saveScoreToFirebase = saveScoreToFirebase;
 </script>
-
 </body>
 </html>
