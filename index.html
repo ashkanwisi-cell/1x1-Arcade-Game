@@ -1934,5 +1934,41 @@ Try to beat this run.`;
   })();
 
 </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } 
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+  // 🔥 همین config خودت را اینجا قرار بده
+  const firebaseConfig = {
+    apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
+    authDomain: "adan-f630c.firebaseapp.com",
+    projectId: "adan-f630c",
+    storageBucket: "adan-f630c.firebasestorage.app",
+    messagingSenderId: "116112699236",
+    appId: "1:116112699236:web:a4fbe09161bf2e781b9471",
+    measurementId: "G-Q6MZBGZERG"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 🔥 تابع ذخیره امتیاز (می‌فرسته به Firestore)
+  async function saveScoreToFirebase(score) {
+    try {
+      await addDoc(collection(db, "scores"), {
+        score: score,
+        createdAt: new Date().toISOString()
+      });
+      console.log("Saved:", score);
+    } catch (err) {
+      console.error("Error saving score:", err);
+    }
+  }
+
+  // برای اینکه فایل اصلی بازی بتواند این تابع را صدا بزند:
+  window.saveScoreToFirebase = saveScoreToFirebase;
+  </script>
 </body>
 </html>
+
