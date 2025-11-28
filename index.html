@@ -1932,36 +1932,102 @@ Try to beat this run.`;
       if(ctx&&ctx.state==="suspended")ctx.resume();
     },true);
   })();
-<script type=”module”>
-  import { initializeApp } from “https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js”;
-  import { getFirestore, collection, addDoc }
-    from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
 
-  const firebaseConfig = {
-    apiKey: “...”,
-    authDomain: “...”,
-    projectId: “...”,
-    storageBucket: “...”,
-    messagingSenderId: “...”,
-    appId: “...”,
-  };
+<script type="module">
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+/* -----------------------------------------
+   1) IMPORT FIREBASE MODULES
+------------------------------------------ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  async function saveScoreToFirebase(score) {
-    try {
-      await addDoc(collection(db, “scores”), {
-        score: score,
-        createdAt: new Date().toISOString()
-      });
-      console.log(”Saved:”, score);
-    } catch (err) {
-      console.error(”Error saving score:”, err);
-    }
+/* -----------------------------------------
+   2) FIREBASE CONFIG (YOUR DATA)
+------------------------------------------ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCvTE8pWDpfP8uKzB5CnRkaa6aEK6u-7JQ",
+  authDomain: "adan-f630c.firebaseapp.com",
+  projectId: "adan-f630c",
+  storageBucket: "adan-f630c.firebasestorage.app",
+  messagingSenderId: "116112699236",
+  appId: "1:116112699236:web:a4fbe09161bf2e781b9471",
+  measurementId: "G-Q6MZBGZERG"
+};
+
+/* -----------------------------------------
+   3) INITIALIZE APP + FIRESTORE
+------------------------------------------ */
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+/* =====================================================
+   PLAYER SAVE / UPDATE LOGIC
+   -----------------------------------------------------
+   Call savePlayerData(playerName, score, level, skin)
+   whenever a game run ends.
+===================================================== */
+
+//  FORMAT PLAYER DOC ID (lowercase, no spaces)
+function normalizePlayerId(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+/* -----------------------------------------
+   SAVE OR UPDATE PLAYER DATA
+------------------------------------------ */
+async function savePlayerData(playerName, score, level, skin) {
+  
+  const playerId = normalizePlayerId(playerName);
+  const ref = doc(db, "players", playerId);
+
+  const snapshot = await getDoc(ref);
+
+  const now = new Date().toISOString();
+
+  if (!snapshot.exists()) {
+    // ---------------------------------------------------
+    // PLAYER DOESN'T EXIST → CREATE NEW DOCUMENT
+    // ---------------------------------------------------
+    await setDoc(ref, {
+      playerName: playerName,
+      highScore: score,
+      level: level,
+      skin: skin,
+      lastPlayed: now
+    });
+    console.log("NEW PLAYER CREATED:", playerName);
+    return;
   }
 
-  window.saveScoreToFirebase = saveScoreToFirebase;
+  // ---------------------------------------------------
+  // PLAYER EXISTS → CHECK IF NEW SCORE IS HIGHER
+  // ---------------------------------------------------
+  const data = snapshot.data();
+
+  const updatedData = {
+    playerName: playerName,
+    highScore: data.highScore,
+    level: level,
+    skin: skin,
+    lastPlayed: now
+  };
+
+  if (score > data.highScore) {
+    updatedData.highScore = score;
+    console.log("HIGH SCORE UPDATED!");
+  } else {
+    console.log("Score not higher → no update for score.");
+  }
+
+  await setDoc(ref, updatedData, { merge: true });
+}
+
+/* ------------------------------------------------------
+   EXPOSE FUNCTION GLOBALLY SO GAME CAN CALL IT ANYWHERE
+------------------------------------------------------ */
+window.savePlayerData = savePlayerData;
+
 </script>
 </body>
 </html>
+
